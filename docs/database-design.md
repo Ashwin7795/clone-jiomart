@@ -13,13 +13,13 @@
 
 ### Role Values
 
-* customer
+* user
 * vendor
-* admin
+
 
 ### Purpose
 
-Stores user account information and authentication details. The role field determines whether the user is a customer, vendor, or administrator.
+Stores user account information and authentication details. The role field determines whether the account belongs to a user or vendor.
 
 ---
 
@@ -32,19 +32,21 @@ Stores user account information and authentication details. The role field deter
 | title       | String        |
 | description | String        |
 | category    | String        |
+| subcategory | String        |
 | brand       | String        |
 | price       | Number        |
 | stock       | Number        |
 | images      | Array<String> |
 | rating      | Number        |
 | createdAt   | Date          |
-| updatedAt   | Date          |
+
 
 ### Purpose
 
 Stores all product information displayed in the application.
 
 Each product belongs to a vendor and stores the vendorId of the user whose role is "vendor".
+Products are grouped by Category and Subcategory to support catalog browsing, filtering, and search functionality.
 
 ---
 
@@ -104,85 +106,106 @@ Stores completed purchases and order history.
 
 ---
 
-# Planned Product Categories
+# Product Categories & Subcategories
 
-## Fruits & Vegetables
+## Groceries
 
-* Apple
-* Banana
-* Orange
-* Tomato
-* Potato
-* Onion
-* Carrot
+### Subcategories
 
-## Dairy & Bakery
-
-* Milk
-* Butter
-* Cheese
-* Bread
-* Paneer
-* Curd
-* Eggs
-
-## Snacks & Beverages
-
-* Coca Cola
-* Pepsi
-* Lays Chips
-* Kurkure
+* Namkeen & Chips
+* Tea
+* Coffee
 * Biscuits
-* Fruit Juice
-* Energy Drink
+* Sauces & Spreads
+* Breakfast Cereals
+* Chocolates
+* Drinks & Juices
+* Dry Fruits
+* Seeds
+* Makhana
+* Raisins
+* Cashews
+* Dates & Walnuts
+* Mixed Dry Fruits
 
-## Grocery & Staples
+---
 
-* Rice
-* Wheat Flour
-* Sugar
-* Salt
-* Cooking Oil
-* Dal
-* Spices
+## Fashion
 
-## Personal Care
+### Subcategories
 
-* Shampoo
-* Soap
-* Toothpaste
-* Face Wash
-* Body Lotion
-* Deodorant
-* Hair Oil
+* Kurtas & Kurtis
+* T-Shirts
+* Sarees
+* Handbags
+* Trousers & Pants
+* Lingerie & Innerwear
+* Footwear
+* Jewellery
 
-## Home & Kitchen
+---
 
-* Pressure Cooker
-* Water Bottle
-* Frying Pan
-* Storage Container
-* Kitchen Knife
-* Cleaning Brush
-* Mug Set
+## Home & Lifestyle
+
+### Subcategories
+
+* Home Decor
+* Kitchen
+* Car & Bike Care
+* Luggage
+* Sports
+* Furniture
+* Toys
+* Stationery
+
+---
 
 ## Electronics
 
-* Mobile Charger
-* USB Cable
-* Earphones
-* Bluetooth Speaker
-* Power Bank
-* Smart Watch
-* Extension Board
+### Subcategories
+
+* Smartphones
+* Televisions
+* Large Appliances
+* Laptops
+* Tablets
+* Audio & Wearables
+* Mobile Accessories
+* Kitchen Appliances
 
 ---
+
+## Beauty & Personal Care
+
+### Subcategories
+
+* Hair Care
+* Skin Care
+* Oral Care
+* Fragrances
+* Men's Grooming
+* Makeup
+* Personal Hygiene
+* Health & Wellness
+
 
 # Relationships
 
 ## Vendor User and Products
 
 One Vendor User can sell multiple Products.
+
+Products are organized using a Category → Subcategory → Product hierarchy.
+
+Example:
+
+Electronics
+    ↓
+Audio & Wearables
+    ↓
+Boat Airdopes 141
+
+
 
 Relationship:
 

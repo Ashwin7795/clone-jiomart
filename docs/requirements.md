@@ -23,12 +23,4 @@
 * View Own Products
 * Manage Product Inventory
 
-## Admin
 
-* View All Users
-* Manage Users
-* Manage Vendors
-* View All Products
-* Manage Products
-* View All Orders
-* Manage Orders

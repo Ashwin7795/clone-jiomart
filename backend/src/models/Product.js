@@ -21,14 +21,16 @@ const productSchema = new mongoose.Schema(
    category: {
   type: String,
   enum: [
-    "Fruits & Vegetables",
-    "Dairy & Bakery",
-    "Snacks & Beverages",
-    "Grocery & Staples",
-    "Personal Care",
-    "Home & Kitchen",
+    "Groceries",
+    "Fashion",
+    "Home & Lifestyle",
     "Electronics",
+    "Beauty & Personal Care",
   ],
+  required: true,
+},
+subcategory: {
+  type: String,
   required: true,
 },
     brand: {
