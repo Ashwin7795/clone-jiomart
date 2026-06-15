@@ -1,7 +1,7 @@
 const products = [
-  // ==========================================
+
   // 1. GROCERIES (30 Products)
-  // ==========================================
+
   // --- Namkeen & Chips ---
   {
     title: "Lays Classic Salted",
