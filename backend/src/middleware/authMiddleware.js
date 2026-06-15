@@ -30,6 +30,18 @@ const protect = async (req, res, next) => {
   }
 };
 
+
+const vendorOnly = (req, res, next) => {
+  if (req.user.role !== "vendor") {
+    return res.status(403).json({
+      message: "Vendor access only",
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   protect,
+  vendorOnly,
 };

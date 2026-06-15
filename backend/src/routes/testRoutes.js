@@ -2,7 +2,10 @@ const express = require("express");
 
 const router = express.Router();
 
-const { protect } = require("../middleware/authMiddleware");
+const {
+  protect,
+  vendorOnly,
+} = require("../middleware/authMiddleware");
 
 router.get("/", protect, (req, res) => {
   res.json({
@@ -10,5 +13,16 @@ router.get("/", protect, (req, res) => {
     user: req.user,
   });
 });
+
+router.get(
+  "/vendor",
+  protect,
+  vendorOnly,
+  (req, res) => {
+    res.json({
+      message: "Vendor Route Accessed",
+    });
+  }
+);
 
 module.exports = router;
