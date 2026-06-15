@@ -18,7 +18,7 @@ const seedData = async () => {
     await User.deleteMany();
     await Product.deleteMany();
 
-    // Create vendor
+    
     const vendor = await User.create({
       name: "Demo Vendor",
       email: "vendor@jiomart.com",
