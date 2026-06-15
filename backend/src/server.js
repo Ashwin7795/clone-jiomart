@@ -10,6 +10,8 @@ const authRoutes = require("./routes/authRoutes");
 
 const testRoutes = require("./routes/testRoutes");
 
+const cartRoutes = require("./routes/cartRoutes");
+
 dotenv.config();
 
 connectDB();
@@ -23,6 +25,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/test", testRoutes);
+
+app.use("/api/cart", cartRoutes);
 
 app.get("/", (req, res) => {
   res.send("JioMart Backend Running");
