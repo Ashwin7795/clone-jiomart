@@ -13,6 +13,8 @@ A full-stack e-commerce application inspired by JioMart. The application allows 
 * Redux Toolkit
 * HTML
 * CSS
+* Tailwind
+  
 
 ### Backend
 
