@@ -1,11 +1,52 @@
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      localStorage.setItem(
+        "token",
+        response.data.token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.user)
+      );
+
+      console.log(response.data);
+
+      navigate("/");
+
+    } catch (error) {
+      console.log(error.response?.data);
+
+      alert(
+        error.response?.data?.message ||
+        "Login Failed"
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white w-[420px] rounded-3xl shadow-md p-8">
 
-      
         <h1 className="text-3xl font-bold mb-2">
           Welcome Back!
         </h1>
@@ -14,7 +55,10 @@ function Login() {
           Sign in to continue shopping
         </p>
 
-        <form className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
 
           <div>
             <label className="block mb-2 text-sm font-medium">
@@ -24,6 +68,10 @@ function Login() {
             <input
               type="email"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-600"
             />
           </div>
@@ -36,6 +84,10 @@ function Login() {
             <input
               type="password"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-600"
             />
           </div>
