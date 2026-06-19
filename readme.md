@@ -14,6 +14,8 @@ A full-stack e-commerce application inspired by JioMart. The application allows 
 * HTML
 * CSS
 * Tailwind
+* axios
+  
   
 
 ### Backend
