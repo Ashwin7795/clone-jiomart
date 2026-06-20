@@ -16,7 +16,7 @@ function Register() {
         name,
         email,
         password,
-        role: "user",
+        role: "vendor",
       }
     );
 
