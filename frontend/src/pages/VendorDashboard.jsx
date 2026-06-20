@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 function VendorDashboard() {
@@ -10,7 +10,89 @@ function VendorDashboard() {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [products, setProducts] = useState([]);
 
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/products"
+      );
+
+      setProducts(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+
+  const handleEdit = async (product) => {
+  const newTitle = prompt(
+    "Enter new title",
+    product.title
+  );
+
+  if (!newTitle) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.put(
+      `http://localhost:5000/api/products/${product._id}`,
+      {
+        ...product,
+        title: newTitle,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Product Updated Successfully!");
+
+    fetchProducts();
+
+  } catch (error) {
+    console.log(error.response?.data);
+
+    alert(
+      error.response?.data?.message ||
+      "Update Failed"
+    );
+  }
+};
+
+const handleDelete = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.delete(
+      `http://localhost:5000/api/products/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Product Deleted Successfully!");
+
+    fetchProducts();
+
+  } catch (error) {
+    console.log(error.response?.data);
+
+    alert(
+      error.response?.data?.message ||
+      "Delete Failed"
+    );
+  }
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -40,6 +122,8 @@ function VendorDashboard() {
 
       alert("Product Added Successfully!");
 
+      fetchProducts();
+
       setTitle("");
       setDescription("");
       setCategory("Groceries");
@@ -54,7 +138,7 @@ function VendorDashboard() {
 
       alert(
         error.response?.data?.message ||
-        "Failed to Add Product"
+          "Failed to Add Product"
       );
     }
   };
@@ -205,6 +289,41 @@ function VendorDashboard() {
           </button>
 
         </form>
+
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">
+            My Products
+          </h2>
+
+          {products.map((product) => (
+            <div
+              key={product._id}
+              className="border rounded-lg p-4 mb-4"
+            >
+              <h3 className="font-bold text-lg">
+                {product.title}
+              </h3>
+
+              <p>{product.brand}</p>
+
+              <p>₹{product.price}</p>
+
+              <p>Stock: {product.stock}</p>
+              <button
+  onClick={() => handleEdit(product)}
+  className="mt-3 mr-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+>
+  Edit
+</button>
+              <button
+  onClick={() => handleDelete(product._id)}
+  className="mt-3 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+>
+  Delete
+</button>
+            </div>
+          ))}
+        </div>
 
       </div>
     </div>
