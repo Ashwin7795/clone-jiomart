@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   const fetchProducts = async () => {
     try {
@@ -34,10 +36,13 @@ function Home() {
         <div className="grid grid-cols-4 gap-6">
 
           {products.map((product) => (
-            <div
-              key={product._id}
-              className="bg-white rounded-lg shadow-md p-4"
-            >
+           <div
+  key={product._id}
+  onClick={() =>
+    navigate(`/product/${product._id}`)
+  }
+  className="bg-white rounded-lg shadow-md p-4 cursor-pointer"
+>
               <img
                 src={product.images?.[0]}
                 alt={product.title}
