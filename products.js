@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+import mongoose from "mongoose";
+import { config } from "dotenv";
 
-const connectDB = require("./config/db");
-const User = require("./models/User");
-const Product = require("./models/Product");
+import connectDB from "./config/db";
+import { deleteMany, create } from "./models/User";
+import { deleteMany as _deleteMany, insertMany } from "./models/Product";
 
-dotenv.config();
+config();
 
 // Safely maps the API's random categories into your strict Mongoose Schema enums
 const mapToSchemaCategory = (apiCategory) => {
@@ -27,10 +27,10 @@ const seedData = async () => {
     await connectDB();
 
     // 1. Wipe the old corrupted database entries
-    await User.deleteMany();
-    await Product.deleteMany();
+    await deleteMany();
+    await _deleteMany();
 
-    const vendor = await User.create({
+    const vendor = await create({
       name: "Demo Vendor",
       email: "vendor@jiomart.com",
       password: "123456",
@@ -58,7 +58,7 @@ const seedData = async () => {
     }));
 
     // 4. Inject into MongoDB
-    await Product.insertMany(productsToInsert);
+    await insertMany(productsToInsert);
 
     console.log(`SUCCESS: ${productsToInsert.length} Perfect Products Inserted!`);
     process.exit();
