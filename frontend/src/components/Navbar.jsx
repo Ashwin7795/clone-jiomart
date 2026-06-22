@@ -64,7 +64,7 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Search Bar - Much more compact now */}
+        {/* Search Bar */}
         <div className="flex-1 max-w-[480px] h-9 bg-[#f0f4f9] rounded-full flex items-center px-4 border border-transparent focus-within:border-gray-300 focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(0,120,173,0.05)] transition-all">
           <svg className="w-4 h-4 text-gray-500 mr-2 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

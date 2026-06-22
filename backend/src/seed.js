@@ -22,6 +22,27 @@ const mapToSchemaCategory = (apiCategory) => {
   return "Groceries"; // Fallback for food/groceries
 };
 
+// Generates category-specific descriptions to cleanly fill 2-3 layout lines
+const expandDescription = (base, category) => {
+  switch (category) {
+    case "Groceries":
+      return `${base} Sourced from premium facilities to ensure top-tier quality, optimal purity, and rich freshness for your daily cooking needs. Packaged under strict hygienic standards to preserve standard weight and organic composition properties.`;
+    
+    case "Electronics":
+      return `${base} Engineered with cutting-edge technology and premium interior nodes for ultra-responsive performance. Features a sleek design layout, durable case structures, and energy-optimized configuration metrics for high daily productivity.`;
+    
+    case "Beauty & Personal Care":
+      return `${base} Dermatologically checked and formulated with gentle, safe extracts suitable for regular application. Designed to preserve natural moisture and skin vitality while maintaining consistent protection throughout the day.`;
+    
+    case "Home & Lifestyle":
+    case "Furniture":
+      return `${base} Crafted from highly durable, premium-grade materials designed to blend seamlessly into modern home interiors. Offers excellent structural integrity, hassle-free maintenance, and space-optimized utility for your living spaces.`;
+    
+    default:
+      return `${base} Carefully selected and manufactured under strict quality compliance metrics to ensure exceptional reliability, long-lasting performance, and premium value for everyday consumer requirements.`;
+  }
+};
+
 const seedData = async () => {
   try {
     await connectDB();
@@ -44,18 +65,23 @@ const seedData = async () => {
     const data = await response.json();
 
     // 3. Map the external data perfectly into your Mongoose Schema
-    const productsToInsert = data.products.map((item) => ({
-      vendorId: vendor._id,
-      title: item.title,
-      description: item.description,
-      category: mapToSchemaCategory(item.category),
-      subcategory: item.category, // Keeps the specific tag (e.g., 'smartphones')
-      brand: item.brand || "Authentic",
-      price: Math.round(item.price * 80), // Converts USD to INR roughly
-      stock: item.stock || 50,
-      images: item.images && item.images.length > 0 ? item.images : [item.thumbnail],
-      rating: item.rating || 4.0,
-    }));
+    const productsToInsert = data.products.map((item) => {
+      const mappedCategory = mapToSchemaCategory(item.category);
+      
+      return {
+        vendorId: vendor._id,
+        title: item.title,
+        // DYNAMICALLY EXTENDED DESCRIPTION LINE
+        description: expandDescription(item.description, mappedCategory),
+        category: mappedCategory,
+        subcategory: item.category, // Keeps the specific tag (e.g., 'smartphones')
+        brand: item.brand || "Authentic",
+        price: Math.round(item.price * 80), // Converts USD to INR roughly
+        stock: item.stock || 50,
+        images: item.images && item.images.length > 0 ? item.images : [item.thumbnail],
+        rating: item.rating || 4.0,
+      };
+    });
 
     // 4. Inject into MongoDB
     await Product.insertMany(productsToInsert);
