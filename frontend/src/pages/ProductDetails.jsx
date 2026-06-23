@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Navbar from "../components/Navbar";
 import ProductRow from "../components/ProductRow";
 
 function ProductDetails() {
@@ -52,7 +51,6 @@ function ProductDetails() {
 
   return (
     <div className="bg-[#f6f6f7] min-h-screen font-sans antialiased text-gray-900 selection:bg-[#0078ad]/10">
-      <Navbar />
 
       {/* Top Breadcrumb Navigation */}
       <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 pt-4 text-[11px] font-medium text-gray-500 flex items-center gap-1.5">
