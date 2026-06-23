@@ -35,8 +35,8 @@ function ProductDetails() {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/login");
     try {
-      await axios.post(
-        "http://localhost:5000/api/cart",
+     await axios.post(
+  "http://localhost:5000/api/cart/add",
         { productId: product._id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
