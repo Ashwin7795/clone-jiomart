@@ -27,15 +27,21 @@ const seedData = async () => {
     await connectDB();
 
     // 1. Wipe the old corrupted database entries
-    await User.deleteMany();
+
     await Product.deleteMany();
 
-    const vendor = await User.create({
-      name: "Demo Vendor",
-      email: "vendor@jiomart.com",
-      password: "123456",
-      role: "vendor",
-    });
+   let vendor = await User.findOne({
+  email: "vendor@jiomart.com",
+});
+
+if (!vendor) {
+  vendor = await User.create({
+    name: "Demo Vendor",
+    email: "vendor@jiomart.com",
+    password: "123456",
+    role: "vendor",
+  });
+}
 
     console.log("Vendor Created. Fetching real products...");
 

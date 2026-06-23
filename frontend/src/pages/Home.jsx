@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Navbar from "../components/Navbar";
 import ProductRow from "../components/ProductRow";
+
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -47,7 +47,6 @@ function Home() {
 
   return (
     <div className="bg-[#f3f4f6] min-h-screen font-sans antialiased overflow-x-hidden">
-      <Navbar />
 
       <main className="w-full pb-10">
         
@@ -163,7 +162,7 @@ function Home() {
         </div>
 
       </main>
-    </div>
+    </div>  
   );
 }
 
