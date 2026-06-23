@@ -1,1 +1,19 @@
 @import "tailwindcss";
+/* Add this below your @theme block */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* Translates half the width of the duplicated track */
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: scroll 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
