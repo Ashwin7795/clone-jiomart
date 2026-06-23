@@ -12,6 +12,7 @@ import VendorDashboard from "./pages/VendorDashboard";
 import ProductDetails from "./pages/ProductDetails";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Cart from "./pages/Cart";
 
 // 1. Layout Wrapper Component to bind the global architecture together
 function MainLayout() {
@@ -44,6 +45,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/vendor" element={<VendorDashboard />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/cart" element={<Cart />} />
         </Route>
       </Routes>
     </BrowserRouter>
