@@ -162,27 +162,36 @@ const { cartCount } = useCart();
       </button>
 
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+  <div className="absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg z-50">
 
-          <div className="px-4 py-3 border-b">
-            <p className="font-semibold">
-              {user?.name}
-            </p>
+    <div className="px-4 py-3 border-b">
+      <p className="font-semibold">{user?.name}</p>
+      <p className="text-xs text-gray-500">
+        {user?.role}
+      </p>
+    </div>
 
-            <p className="text-xs text-gray-500">
-              {user?.role}
-            </p>
-          </div>
+    {user?.role === "vendor" && (
+      <button
+        onClick={() => {
+          navigate("/vendor");
+          setShowDropdown(false);
+        }}
+        className="w-full text-left px-4 py-3 hover:bg-gray-100"
+      >
+        Vendor Dashboard
+      </button>
+    )}
 
-          <button
-            onClick={handleLogout}
-            className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100"
-          >
-            Logout
-          </button>
+    <button
+      onClick={handleLogout}
+      className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100"
+    >
+      Logout
+    </button>
 
-        </div>
-      )}
+  </div>
+)}
     </>
 
   )}
