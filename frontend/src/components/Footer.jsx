@@ -112,7 +112,7 @@ function Footer() {
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-[14px] font-normal text-[#000000]">
           <div className="flex items-center gap-2.5">
             <img src="/jio mart.png" alt="JioMart Logo" className="w-[18px] h-[18px] object-contain" />
-            <span className="font-medium">© 2026 All rights reserved. Reliance Retail Ltd.</span>
+            <span className="font-medium">© 2026 All rights reserved. ABC Retail Ltd.</span>
           </div>
           <div className="text-[#000000] text-[13px] font-medium tracking-normal">
             Best viewed on Microsoft Edge 81+, Mozilla Firefox 75+, Safari 5.1.5+, Google Chrome 80+

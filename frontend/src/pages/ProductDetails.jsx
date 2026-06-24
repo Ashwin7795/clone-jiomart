@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ProductRow from "../components/ProductRow";
+import { useCart } from "../context/CartContext";
+
+
+
+
 
 function ProductDetails() {
   const { id } = useParams();
@@ -10,26 +15,70 @@ function ProductDetails() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [pincode, setPincode] = useState("560002"); // Defaulting to Bengaluru zone from your screenshots
   const [loading, setLoading] = useState(true);
+  const [cartQuantity, setCartQuantity] = useState(0);
+  const { fetchCart } = useCart();
+  const user = localStorage.getItem("user")
+  ? JSON.parse(localStorage.getItem("user"))
+  : null;
 
-  useEffect(() => {
-    const fetchProductData = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`http://localhost:5000/api/products/${id}`);
-        setProduct(res.data);
+const isVendor = user?.role === "vendor";
 
-        const catalogRes = await axios.get("http://localhost:5000/api/products");
-        const filtered = catalogRes.data.filter(p => p.category === res.data.category && p._id !== res.data._id);
-        setRelatedProducts(filtered);
-        
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
+ useEffect(() => {
+  const fetchProductData = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axios.get(
+        `http://localhost:5000/api/products/${id}`
+      );
+
+      setProduct(res.data);
+
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        const cartRes = await axios.get(
+          "http://localhost:5000/api/cart",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const cartItem = cartRes.data.items?.find(
+          (item) =>
+            item.productId?._id === res.data._id
+        );
+
+        if (cartItem) {
+          setCartQuantity(cartItem.quantity);
+        }
       }
-    };
-    fetchProductData();
-  }, [id]);
+
+      const catalogRes = await axios.get(
+        "http://localhost:5000/api/products"
+      );
+
+      const filtered = catalogRes.data.filter(
+        (p) =>
+          p.category === res.data.category &&
+          p._id !== res.data._id
+      );
+
+      setRelatedProducts(filtered);
+
+      setLoading(false);
+
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
+  fetchProductData();
+
+}, [id]);
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("token");
@@ -40,12 +89,67 @@ function ProductDetails() {
         { productId: product._id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Added to Basket!");
+  setCartQuantity(1);
+      fetchCart(); // Refresh cart context after adding item
     } catch (err) {
       console.error(err);
     }
   };
+  
 
+  const handleQuantityChange = async (delta) => {
+  const token = localStorage.getItem("token");
+
+  const newQty = cartQuantity + delta;
+
+if (newQty < 1) {
+  try {
+    await axios.delete(
+      "http://localhost:5000/api/cart/remove",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          productId: product._id,
+        },
+      }
+    );
+
+    setCartQuantity(0);
+    fetchCart();
+    return;
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
+ if (newQty > product.stock) {
+  return;
+}
+
+  try {
+    await axios.put(
+      "http://localhost:5000/api/cart/update",
+      {
+        productId: product._id,
+        quantity: newQty,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setCartQuantity(newQty);
+    fetchCart();
+  } catch (error) {
+    console.log(error);
+  }
+
+};
   if (loading) return <div className="text-center mt-20 text-sm font-bold text-gray-500">Loading Product Deck...</div>;
   if (!product) return <div className="text-center mt-20 font-bold text-gray-600">Product Missing</div>;
 
@@ -109,12 +213,61 @@ function ProductDetails() {
               </div>
 
               {/* Teal Core Action Trigger Button */}
-              <button 
-                onClick={handleAddToCart}
-                className="w-full h-[44px] bg-[#0078ad] hover:bg-[#005f8f] active:scale-[0.99] text-white rounded-full font-black text-sm tracking-wide shadow-sm transition-all cursor-pointer flex items-center justify-center"
-              >
-                Add to Basket
-              </button>
+        {isVendor ? (
+  <button
+    disabled
+    className="w-full h-[44px] bg-gray-300 text-gray-600 rounded-full font-black text-sm"
+  >
+    Vendors Cannot Purchase Products
+  </button>
+) : product.stock === 0 ? (
+  <button
+    disabled
+    className="w-full h-[44px] bg-red-500 text-white rounded-full font-black text-sm"
+  >
+    Out Of Stock
+  </button>
+) : cartQuantity === 0 ? (
+  <button
+    onClick={handleAddToCart}
+    className="w-full h-[44px] bg-[#0078ad] hover:bg-[#00638f] text-white rounded-full font-black text-sm"
+  >
+    Add To Cart
+  </button>
+) : (
+  <div className="w-full h-[44px] flex items-center justify-center gap-6 bg-[#e5f1f7] rounded-full">
+    <button
+      onClick={() => handleQuantityChange(-1)}
+      className="text-[#0078ad] text-xl font-bold"
+    >
+      -
+    </button>
+
+  <div className="flex flex-col items-center">
+  <span className="font-black text-[#0078ad]">
+    {cartQuantity}
+  </span>
+
+  {cartQuantity >= product.stock && (
+    <span className="text-[10px] text-red-500 font-bold">
+      OUT OF STOCK
+    </span>
+  )}
+</div>
+
+   <button
+  onClick={() => handleQuantityChange(1)}
+  disabled={cartQuantity >= product.stock}
+  className={`text-xl font-bold ${
+    cartQuantity >= product.stock
+      ? "text-gray-400 cursor-not-allowed"
+      : "text-[#0078ad]"
+  }`}
+>
+  +
+</button>
+  </div>
+)}
             </div>
 
             {/* Delivery address verification widget card */}
