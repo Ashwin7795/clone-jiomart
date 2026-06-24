@@ -6,6 +6,7 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [role, setRole] = useState("user");
   const navigate = useNavigate();
 
@@ -19,6 +20,7 @@ function Register() {
           name,
           email,
           password,
+          phone,
           role,
         }
       );
@@ -100,7 +102,19 @@ function Register() {
               />
             </div>
           </div>
+<div>
+  <label className="block mb-2 text-sm font-medium">
+    Phone Number
+  </label>
 
+  <input
+    type="text"
+    placeholder="Enter phone number"
+    value={phone}
+    onChange={(e) => setPhone(e.target.value)}
+    className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-600"
+  />
+</div>
           {/* Password Row Box */}
           <div className="w-full flex flex-col items-start">
             <label className="text-xs font-semibold text-gray-500 mb-1.5">

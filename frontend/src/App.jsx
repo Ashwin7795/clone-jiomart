@@ -15,6 +15,7 @@ import Cart from "./pages/Cart";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { CartProvider } from "./context/CartContext";
+import OtpLogin from "./pages/OtpLogin";
 
 function MainLayout() {
   const location = useLocation();
@@ -44,12 +45,15 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/otp-login" element={<OtpLogin />} />
+          
 
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/vendor" element={<VendorDashboard />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
+            
           </Route>
         </Routes>
       </BrowserRouter>
