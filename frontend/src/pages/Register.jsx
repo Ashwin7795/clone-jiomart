@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link,useNavigate} from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
@@ -6,6 +6,8 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -16,13 +18,14 @@ function Register() {
         name,
         email,
         password,
-        role: "vendor",
+        role,
       }
     );
 
     console.log(response.data);
 
-    alert("Registration Successful!");
+  alert("Registration Successful!");
+navigate("/login");
 
   } catch (error) {
     console.log(error.response?.data);
@@ -89,6 +92,20 @@ function Register() {
               className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-600"
             />
           </div>
+          <div>
+  <label className="block mb-2 text-sm font-medium">
+    Account Type
+  </label>
+
+  <select
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-600"
+  >
+    <option value="user">Customer</option>
+    <option value="vendor">Vendor</option>
+  </select>
+</div>
 
           <button
             type="submit"

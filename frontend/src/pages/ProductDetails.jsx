@@ -3,6 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ProductRow from "../components/ProductRow";
 
+
+const user = localStorage.getItem("user")
+  ? JSON.parse(localStorage.getItem("user"))
+  : null;
+
+const isVendor = user?.role === "vendor";
+
 function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -109,12 +116,28 @@ function ProductDetails() {
               </div>
 
               {/* Teal Core Action Trigger Button */}
-              <button 
-                onClick={handleAddToCart}
-                className="w-full h-[44px] bg-[#0078ad] hover:bg-[#005f8f] active:scale-[0.99] text-white rounded-full font-black text-sm tracking-wide shadow-sm transition-all cursor-pointer flex items-center justify-center"
-              >
-                Add to Basket
-              </button>
+        {isVendor ? (
+  <button
+    disabled
+    className="w-full h-[44px] bg-gray-300 text-gray-600 rounded-full font-black text-sm cursor-not-allowed"
+  >
+    Vendors Cannot Purchase Products
+  </button>
+) : product.stock === 0 ? (
+  <button
+    disabled
+    className="w-full h-[44px] bg-red-500 text-white rounded-full font-black text-sm cursor-not-allowed"
+  >
+    Out Of Stock
+  </button>
+) : (
+  <button
+    onClick={handleAddToCart}
+    className="w-full h-[44px] bg-[#0078ad] hover:bg-[#00638f] text-white rounded-full font-black text-sm transition-all"
+  >
+    Add To Cart
+  </button>
+)}
             </div>
 
             {/* Delivery address verification widget card */}

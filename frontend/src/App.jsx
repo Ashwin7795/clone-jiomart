@@ -2,7 +2,8 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  Outlet
+  Outlet,
+  useLocation
 } from "react-router-dom";
 
 import Home from "./pages/Home";
@@ -10,45 +11,49 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VendorDashboard from "./pages/VendorDashboard";
 import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Cart from "./pages/Cart";
+import { CartProvider } from "./context/CartContext";
 
-// 1. Layout Wrapper Component to bind the global architecture together
 function MainLayout() {
+  const location = useLocation();
+  
+  // Check if the user is currently looking at the cart page layout path
+  const isCartPage = location.pathname === "/cart";
+
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Pinned top navigation */}
-      <Navbar />
+    <div className="flex flex-col min-h-screen bg-[#f5f5f5]">
+      {/* Pass a special flag to the Navbar so it knows whether to hide sub-navigation blocks */}
+      <Navbar hideSubNav={isCartPage} />
       
-      {/* Central viewport layout block with bottom cushioning defense */}
       <main className="flex-1 w-full pb-24">
         <Outlet />
       </main>
       
-      {/* Isolated bottom footer */}
-      <Footer />
+      {/* If we are on the cart page path, completely remove the footer component tree */}
+      {!isCartPage && <Footer />}
     </div>
   );
 }
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Auth routes rendered without the global headers/footers */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Core application routes nested securely inside the Layout engine */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/vendor" element={<VendorDashboard />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/cart" element={<Cart />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/vendor" element={<VendorDashboard />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
+            <Route path="/cart" element={<Cart />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 

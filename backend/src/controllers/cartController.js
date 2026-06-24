@@ -3,6 +3,13 @@ const Product = require("../models/Product");
 
 const addToCart = async (req, res) => {
   try {
+
+    if (req.user.role === "vendor") {
+      return res.status(403).json({
+        message: "Vendors cannot add products to cart",
+      });
+    }
+
     const { productId, quantity } = req.body;
 
     const product = await Product.findById(productId);
@@ -10,6 +17,12 @@ const addToCart = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         message: "Product not found",
+      });
+    }
+
+    if (product.stock < quantity) {
+      return res.status(400).json({
+        message: "Product out of stock",
       });
     }
 
@@ -81,6 +94,12 @@ const removeFromCart = async (req, res) => {
       userId: req.user.id,
     });
 
+    if (req.user.role === "vendor") {
+  return res.status(403).json({
+    message: "Vendors cannot modify cart",
+  });
+}
+
     if (!cart) {
       return res.status(404).json({
         message: "Cart not found",
@@ -108,10 +127,30 @@ const updateCartQuantity = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
+    const product = await Product.findById(productId);
+
+if (!product) {
+  return res.status(404).json({
+    message: "Product not found",
+  });
+}
+
+if (quantity > product.stock) {
+  return res.status(400).json({
+    message: `Only ${product.stock} items available`,
+  });
+}
+
     const cart = await Cart.findOne({
       userId: req.user.id,
     });
 
+
+    if (req.user.role === "vendor") {
+  return res.status(403).json({
+    message: "Vendors cannot modify cart",
+  });
+}
     if (!cart) {
       return res.status(404).json({
         message: "Cart not found",
