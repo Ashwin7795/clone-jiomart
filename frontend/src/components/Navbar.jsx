@@ -1,23 +1,44 @@
 
-import React, { useState } from "react";
+import React, { useState,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext"; // Bring in live cart state hook
 
 function Navbar({ hideSubNav }) {
   const navigate = useNavigate();
- const token = localStorage.getItem("token");
+
  const [showDropdown, setShowDropdown] = useState(false);
-const user = localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("user"))
-  : null;
+
+const [token, setToken] = useState(localStorage.getItem("token"));
+
+const [user, setUser] = useState(
+  JSON.parse(localStorage.getItem("user"))
+);
 
 const { cartCount } = useCart();
+
+useEffect(() => {
+  setToken(localStorage.getItem("token"));
+
+  const storedUser = localStorage.getItem("user");
+
+  setUser(storedUser ? JSON.parse(storedUser) : null);
+}, [cartCount]);
+
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+
+    setToken(null);
+setUser(null);
+
      navigate("/");
+     
   };
+
+
 
   return (
     <header 

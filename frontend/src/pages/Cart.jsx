@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
-
+import { useNavigate } from "react-router-dom";
 function Cart() {
   const [cart, setCart] = useState(null);
   const cartContext = useCart();
   const syncNavbarCart = cartContext ? cartContext.fetchCart : () => {};
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (token) {
@@ -281,6 +282,7 @@ function Cart() {
                     <p className="font-black text-[22px] text-black leading-none">₹{subtotal.toFixed(2)}</p>
                     <p className="text-[#00b259] text-[14px] font-bold mt-1.5">You Saved ₹{dynamicDiscount.toFixed(2)}</p>
                     <button
+                      onClick={() => navigate("/checkout")}
   className="w-full mt-5 bg-[#0078ad] hover:bg-[#005f8f] text-white py-3 rounded-xl font-bold transition-colors"
 >
   Proceed To Checkout

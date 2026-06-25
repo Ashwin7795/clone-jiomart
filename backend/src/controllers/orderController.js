@@ -1,9 +1,18 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 
 
 const createOrder = async (req, res) => {
   try {
+    const {
+  fullName,
+  phone,
+  address,
+  city,
+  state,
+  pincode,
+} = req.body;
     const cart = await Cart.findOne({
       userId: req.user.id,
     }).populate("items.productId");
@@ -26,12 +35,31 @@ const createOrder = async (req, res) => {
       0
     );
 
-    const order = await Order.create({
-      userId: req.user.id,
-      products,
-      totalAmount,
-    });
+   const order = await Order.create({
+  userId: req.user.id,
+  products,
+  totalAmount,
+  shippingAddress: {
+    fullName,
+    phone,
+    address,
+    city,
+    state,
+    pincode,
+  },
+});
 
+
+for (const item of cart.items) {
+  await Product.findByIdAndUpdate(
+    item.productId._id,
+    {
+      $inc: {
+        stock: -item.quantity,
+      },
+    }
+  );
+}
     cart.items = [];
 
     await cart.save();
