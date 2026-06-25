@@ -144,7 +144,7 @@ function Register() {
                 className="w-full h-full bg-transparent text-sm font-bold text-[#141414] outline-none cursor-pointer appearance-none text-left"
               >
                 <option value="user">Customer</option>
-                <option value="vendor">Vendor</option>
+                <option value="admin">Admin</option>
               </select>
               <div className="absolute right-4 pointer-events-none text-[#0078ad]">
                 <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

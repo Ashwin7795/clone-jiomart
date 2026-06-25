@@ -290,11 +290,8 @@ function Cart() {
               </div>
             </div>
 
-            {/* Core Blueprint Call-to-Action Action Trigger */}
-            <button className="w-full bg-[#0078ad] hover:bg-[#00628f] text-white py-4 rounded-full font-bold text-[17px] transition-colors shadow-sm active:scale-[0.99] transition-transform cursor-pointer">
-              Login to proceed
-            </button>
-
+         
+            
             {/* Legal Disclaimers Box Component */}
             <div className="bg-white rounded-[16px] p-5 border border-gray-100 text-center shadow-2xs">
               <p className="text-[13px] text-gray-500 font-semibold leading-relaxed">
