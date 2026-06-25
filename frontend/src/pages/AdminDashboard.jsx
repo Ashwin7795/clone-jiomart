@@ -74,7 +74,7 @@ function AdminDashboard() {
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      "http://localhost:5000/api/orders/admin/all",
+  "http://localhost:5000/api/orders/admin",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ const updateStatus = async (id, status) => {
     const token = localStorage.getItem("token");
 
     await axios.put(
-      `http://localhost:5000/api/orders/admin/${id}/status`,
+      `http://localhost:5000/api/orders/${id}/status`,
       { status },
       {
         headers: {

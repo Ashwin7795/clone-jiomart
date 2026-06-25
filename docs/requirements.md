@@ -13,7 +13,7 @@
 * Place Order
 * View Orders
 
-## Vendor
+## Admin
 
 * Register
 * Login

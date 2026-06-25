@@ -31,10 +31,10 @@ const protect = async (req, res, next) => {
 };
 
 
-const vendorOnly = (req, res, next) => {
-  if (req.user.role !== "vendor") {
+const adminOnly = (req, res, next) => {
+  if (req.user.role !== "admin") {
     return res.status(403).json({
-      message: "Vendor access only",
+      message: "Admin access only",
     });
   }
 
@@ -43,5 +43,5 @@ const vendorOnly = (req, res, next) => {
 
 module.exports = {
   protect,
-  vendorOnly,
+  adminOnly,
 };

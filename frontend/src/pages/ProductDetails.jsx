@@ -21,7 +21,7 @@ function ProductDetails() {
   ? JSON.parse(localStorage.getItem("user"))
   : null;
 
-const isVendor = user?.role === "vendor";
+const isVendor = user?.role === "admin";
 
  useEffect(() => {
   window.scrollTo({
@@ -224,7 +224,7 @@ if (newQty < 1) {
     disabled
     className="w-full h-[44px] bg-gray-300 text-gray-600 rounded-full font-black text-sm"
   >
-    Vendors Cannot Purchase Products
+    Admin Cannot Purchase Products
   </button>
 ) : product.stock === 0 ? (
   <button
