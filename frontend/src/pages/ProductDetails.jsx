@@ -24,6 +24,10 @@ function ProductDetails() {
 const isVendor = user?.role === "vendor";
 
  useEffect(() => {
+  window.scrollTo({
+  top: 0,
+  behavior: "smooth",
+});
   const fetchProductData = async () => {
     try {
       setLoading(true);
@@ -51,9 +55,11 @@ const isVendor = user?.role === "vendor";
             item.productId?._id === res.data._id
         );
 
-        if (cartItem) {
-          setCartQuantity(cartItem.quantity);
-        }
+       if (cartItem) {
+  setCartQuantity(cartItem.quantity);
+} else {
+  setCartQuantity(0);
+}
       }
 
       const catalogRes = await axios.get(

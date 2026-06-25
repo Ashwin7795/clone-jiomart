@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useCart } from "../context/CartContext";
 function Checkout() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -8,8 +9,8 @@ function Checkout() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
-  
-  const navigate = useNavigate();
+  const { fetchCart } = useCart();
+    const navigate = useNavigate();
 
   const isFormValid = 
     fullName.trim() !== "" && 
@@ -40,9 +41,10 @@ const handlePlaceOrder = async () => {
         },
       }
     );
+localStorage.setItem("cartUpdated", Date.now());
+   await fetchCart();
 
-    navigate("/order-success");
-
+navigate("/order-success");
   } catch (error) {
 
     console.log(error.response?.data);

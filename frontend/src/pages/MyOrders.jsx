@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 function MyOrders() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const token = localStorage.getItem("token");
 
@@ -88,41 +89,49 @@ function MyOrders() {
                   <p className="font-mono text-black font-bold mt-0.5 select-all">#{order._id.slice(-8).toUpperCase()}</p>
                 </div>
               </div>
+<div className="p-6">
 
-              {/* 2. Content Row — Multiplex Product Sub-Item Nested Loop Map */}
-              <div className="p-6 divide-y divide-gray-50">
-                {order.products?.map((item, idx) => {
-                  if (!item.productId) return null;
-                  return (
-                    <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-                      <div className="flex items-center gap-4">
-                        {/* Compact Thumbnail Mask */}
-                        <div className="w-16 h-16 bg-[#f9f9f9] border border-gray-100 rounded-lg p-1.5 shrink-0 flex items-center justify-center">
-                          <img
-                            src={item.productId.images?.[0] || "/placeholder.png"}
-                            alt={item.productId.title}
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        </div>
+  <div className="flex items-center gap-4">
 
-                        <div>
-                          <h3 className="font-bold text-[15px] text-black line-clamp-1 leading-snug max-w-[420px]">
-                            {item.productId.title}
-                          </h3>
-                          <p className="text-[12px] text-gray-400 font-medium mt-0.5">
-                            Brand: <span className="text-gray-600 font-semibold">{item.productId.brand || "Generic"}</span> &nbsp;|&nbsp; Qty: <span className="text-gray-600 font-bold">{item.quantity}</span>
-                          </p>
-                        </div>
-                      </div>
+    <div className="w-20 h-20 bg-[#f9f9f9] border rounded-lg flex items-center justify-center">
 
-                      {/* Display Unit Rates For Individual Content Records */}
-                      <div className="text-right shrink-0 sm:block hidden">
-                        <span className="font-bold text-[15px] text-gray-800">₹{(item.productId.price * item.quantity).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+      <img
+        src={order.products[0]?.productId?.images?.[0]}
+        alt={order.products[0]?.productId?.title}
+        className="max-h-full max-w-full object-contain"
+      />
+
+    </div>
+
+    <div className="flex-1">
+
+      <h3 className="font-bold text-lg">
+
+        {order.products[0]?.productId?.title}
+
+      </h3>
+
+      {order.products.length > 1 && (
+
+        <p className="text-gray-500 mt-1">
+
+          + {order.products.length - 1} more item(s)
+
+        </p>
+
+      )}
+
+      <p className="mt-2 font-semibold">
+
+        ₹{order.totalAmount}
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
 
               {/* 3. Base Fulfillment Control & Color Coded Tracking Status Badge Strip */}
               <div className="border-t border-gray-50 px-6 py-4 bg-white flex items-center justify-between flex-wrap gap-3">
@@ -133,12 +142,12 @@ function MyOrders() {
                   </span>
                 </div>
 
-                <button 
-                  onClick={() => alert(`Details window processing for Order ID: ${order._id}`)}
-                  className="border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-1.5 rounded-lg text-[13px] font-bold shadow-2xs transition-colors cursor-pointer"
-                >
-                  Track Item Flow
-                </button>
+               <button
+  onClick={() => navigate(`/orders/${order._id}`)}
+  className="border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-1.5 rounded-lg text-[13px] font-bold"
+>
+  View Order
+</button>
               </div>
 
             </div>

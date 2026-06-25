@@ -33,6 +33,16 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
+
+  shippingAddress: {
+  fullName: String,
+  phone: String,
+  address: String,
+  city: String,
+  state: String,
+  pincode: String,
+},
+
     status: {
       type: String,
       enum: [

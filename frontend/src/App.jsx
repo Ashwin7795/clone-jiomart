@@ -19,6 +19,7 @@ import OtpLogin from "./pages/OtpLogin";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
+import OrderDetails from "./pages/OrderDetails";
 function MainLayout() {
   const location = useLocation();
   
@@ -58,6 +59,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/orders/:id" element={<OrderDetails />} />
             
         </Route>
         </Routes>
