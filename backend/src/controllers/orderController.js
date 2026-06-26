@@ -143,10 +143,9 @@ const updateOrderStatus = async (req, res) => {
 
 const getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(
-      req.params.id
-    ).populate("products.productId");
-
+   const order = await Order.findById(req.params.id)
+  .populate("products.productId")
+  .populate("userId", "name email");
     if (!order) {
       return res.status(404).json({
         message: "Order not found",

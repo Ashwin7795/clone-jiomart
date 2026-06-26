@@ -104,8 +104,13 @@ const updateStatus = async (id, status) => {
       }
     );
 
-    fetchOrders();
-
+ setOrders((prev) =>
+  prev.map((order) =>
+    order._id === id
+      ? { ...order, status }
+      : order
+  )
+);
   } catch (error) {
     console.log(error.response?.data);
   }
@@ -377,7 +382,7 @@ const updateStatus = async (id, status) => {
       Customer Orders
     </h2>
 
-    <table className="w-full">
+    <table className="w-full border-separate border-spacing-y-2">
 
       <thead>
 
@@ -395,10 +400,12 @@ const updateStatus = async (id, status) => {
             Status
           </th>
 
-          <th className="text-left">
+          <th className="text-center">
             Update
           </th>
-
+<th className="text-center">
+  Details
+</th>
         </tr>
 
       </thead>
@@ -407,24 +414,54 @@ const updateStatus = async (id, status) => {
 
         {orders.map((order) => (
 
-          <tr
-            key={order._id}
-            className="border-b"
-          >
+         <tr
+  key={order._id}
+  className="bg-gray-50"
+>
 
-            <td className="py-4">
-              {order.userId?.name}
-            </td>
+           <td className="py-4">
+  <div>
+    <p className="font-semibold">
+      {order.userId?.name}
+    </p>
+
+    <p className="text-sm text-gray-500">
+      {order.userId?.email}
+    </p>
+
+    <p className="text-xs text-gray-400 mt-1">
+      {order.products[0]?.productId?.title}
+
+      {order.products.length > 1 &&
+        ` + ${order.products.length - 1} more`}
+    </p>
+  </div>
+</td>
 
             <td>
               ₹{order.totalAmount}
             </td>
 
-            <td>
-              {order.status}
-            </td>
+          <td>
+  <span
+    className={`px-3 py-1 rounded-full text-xs font-bold
+      ${
+        order.status === "Delivered"
+          ? "bg-green-100 text-green-700"
+          : order.status === "Shipped"
+          ? "bg-blue-100 text-blue-700"
+          : order.status === "Confirmed"
+          ? "bg-purple-100 text-purple-700"
+          : order.status === "Cancelled"
+          ? "bg-red-100 text-red-700"
+          : "bg-yellow-100 text-yellow-700"
+      }`}
+  >
+    {order.status}
+  </span>
+</td>
 
-            <td>
+            <td className="text-center">
 
               <select
                 value={order.status}
@@ -450,6 +487,15 @@ const updateStatus = async (id, status) => {
               </select>
 
             </td>
+
+            <td className="text-center">
+  <button
+    onClick={() => navigate(`/orders/${order._id}`)}
+   className="bg-[#0078ad] hover:bg-[#00618b] text-white px-3 py-1.5 rounded-lg text-sm font-semibold"
+  >
+    View
+  </button>
+</td>
 
           </tr>
 
