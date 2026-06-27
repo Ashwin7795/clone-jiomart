@@ -65,7 +65,7 @@ const createProduct = async (req, res) => {
   try {
     const product = await Product.create({
       ...req.body,
-      vendorId: req.user.id,
+      adminId: req.user.id,
     });
 
     res.status(201).json(product);
@@ -87,7 +87,7 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    if (product.vendorId.toString() !== req.user.id) {
+    if (product.adminId.toString() !== req.user.id) {
       return res.status(403).json({
         message: "Not authorized",
       });
@@ -118,7 +118,7 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    if (product.vendorId.toString() !== req.user.id) {
+    if (product.adminId.toString() !== req.user.id) {
       return res.status(403).json({
         message: "Not authorized",
       });

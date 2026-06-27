@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
   protect,
-  vendorOnly,
+  adminOnly,
 } = require("../middleware/authMiddleware");
 
 router.get("/", protect, (req, res) => {
@@ -15,12 +15,12 @@ router.get("/", protect, (req, res) => {
 });
 
 router.get(
-  "/vendor",
+  "/admin",
   protect,
-  vendorOnly,
+  adminOnly,
   (req, res) => {
     res.json({
-      message: "Vendor Route Accessed",
+      message: "Admin Route Accessed",
     });
   }
 );

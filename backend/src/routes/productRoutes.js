@@ -14,7 +14,7 @@ const {
 
 const {
   protect,
-  vendorOnly,
+  adminOnly,
 } = require("../middleware/authMiddleware");
 
 router.get("/", getProducts);
@@ -22,21 +22,21 @@ router.get("/", getProducts);
 router.post(
   "/",
   protect,
-  vendorOnly,
+  adminOnly,
   createProduct
 );
 
 router.put(
   "/:id",
   protect,
-  vendorOnly,
+  adminOnly,
   updateProduct
 );
 
 router.delete(
   "/:id",
   protect,
-  vendorOnly,
+  adminOnly,
   deleteProduct
 );
 

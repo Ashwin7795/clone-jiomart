@@ -4,9 +4,9 @@ const Product = require("../models/Product");
 const addToCart = async (req, res) => {
   try {
 
-    if (req.user.role === "vendor") {
+    if (req.user.role === "admin") {
       return res.status(403).json({
-        message: "Vendors cannot add products to cart",
+        message: "admin cannot add products to cart",
       });
     }
 
@@ -94,9 +94,9 @@ const removeFromCart = async (req, res) => {
       userId: req.user.id,
     });
 
-    if (req.user.role === "vendor") {
+    if (req.user.role === "admin") {
   return res.status(403).json({
-    message: "Vendors cannot modify cart",
+    message: "admin cannot modify cart",
   });
 }
 
@@ -146,9 +146,9 @@ if (quantity > product.stock) {
     });
 
 
-    if (req.user.role === "vendor") {
+    if (req.user.role === "admin") {
   return res.status(403).json({
-    message: "Vendors cannot modify cart",
+    message: "admin cannot modify cart",
   });
 }
     if (!cart) {

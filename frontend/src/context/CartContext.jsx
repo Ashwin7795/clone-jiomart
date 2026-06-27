@@ -25,8 +25,19 @@ export function CartProvider({ children }) {
   };
 
   useEffect(() => {
+  fetchCart();
+
+  const handleStorage = () => {
     fetchCart();
-  }, [token]);
+  };
+
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+  };
+
+}, [token]);
 
   return (
     <CartContext.Provider value={{ cartCount, cartItems, fetchCart, setCartCount }}>

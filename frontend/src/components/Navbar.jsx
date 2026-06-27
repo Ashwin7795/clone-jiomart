@@ -1,23 +1,44 @@
 
-import React, { useState } from "react";
+import React, { useState,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext"; // Bring in live cart state hook
 
 function Navbar({ hideSubNav }) {
   const navigate = useNavigate();
- const token = localStorage.getItem("token");
+
  const [showDropdown, setShowDropdown] = useState(false);
-const user = localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("user"))
-  : null;
+
+const [token, setToken] = useState(localStorage.getItem("token"));
+
+const [user, setUser] = useState(
+  JSON.parse(localStorage.getItem("user"))
+);
 
 const { cartCount } = useCart();
+
+useEffect(() => {
+  setToken(localStorage.getItem("token"));
+
+  const storedUser = localStorage.getItem("user");
+
+  setUser(storedUser ? JSON.parse(storedUser) : null);
+}, [cartCount]);
+
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+
+    setToken(null);
+setUser(null);
+
      navigate("/");
+     
   };
+
+
 
   return (
     <header 
@@ -97,7 +118,7 @@ const { cartCount } = useCart();
             <span className="font-bold text-[15px] leading-none mb-[1px]">%</span>
           </button>
 
-         {user?.role !== "vendor" && (
+         {user?.role !== "admin" && (
   <button className="w-[30px] h-[30px] text-[#141414] hover:text-[#000000] transition-colors cursor-pointer flex items-center justify-center">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
       <path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2z"/>
@@ -106,7 +127,7 @@ const { cartCount } = useCart();
   </button>
 )}
 
-          {user?.role !== "vendor" && (
+          {user?.role !== "admin" && (
   <button
     onClick={() => navigate("/cart")}
     className="w-[30px] h-[30px] text-[#141414] hover:text-[#000000] transition-colors relative cursor-pointer flex items-center justify-center"
@@ -171,18 +192,28 @@ const { cartCount } = useCart();
       </p>
     </div>
 
-    {user?.role === "vendor" && (
+    {user?.role === "admin" && (
       <button
         onClick={() => {
-          navigate("/vendor");
+          navigate("/admin");
           setShowDropdown(false);
         }}
         className="w-full text-left px-4 py-3 hover:bg-gray-100"
       >
-        Vendor Dashboard
+        Admin Dashboard
       </button>
     )}
-
+{user?.role !== "admin" && (
+  <button
+    onClick={() => {
+      setShowDropdown(false);
+      navigate("/my-orders");
+    }}
+    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+  >
+    My Orders
+  </button>
+)}
     <button
       onClick={handleLogout}
       className="w-full text-left px-4 py-3 text-red-600 hover:bg-gray-100"

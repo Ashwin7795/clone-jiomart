@@ -9,13 +9,17 @@ import {
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import VendorDashboard from "./pages/VendorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { CartProvider } from "./context/CartContext";
-
+import OtpLogin from "./pages/OtpLogin";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import MyOrders from "./pages/MyOrders";
+import OrderDetails from "./pages/OrderDetails";
 function MainLayout() {
   const location = useLocation();
   
@@ -44,13 +48,20 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/otp-login" element={<OtpLogin />} />
+          
 
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/vendor" element={<VendorDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/cart" element={<Cart />} />
-          </Route>
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-success" element={<OrderSuccess />} />
+            <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/orders/:id" element={<OrderDetails />} />
+            
+        </Route>
         </Routes>
       </BrowserRouter>
     </CartProvider>

@@ -21,9 +21,13 @@ function ProductDetails() {
   ? JSON.parse(localStorage.getItem("user"))
   : null;
 
-const isVendor = user?.role === "vendor";
+const isVendor = user?.role === "admin";
 
  useEffect(() => {
+  window.scrollTo({
+  top: 0,
+  behavior: "smooth",
+});
   const fetchProductData = async () => {
     try {
       setLoading(true);
@@ -51,9 +55,11 @@ const isVendor = user?.role === "vendor";
             item.productId?._id === res.data._id
         );
 
-        if (cartItem) {
-          setCartQuantity(cartItem.quantity);
-        }
+       if (cartItem) {
+  setCartQuantity(cartItem.quantity);
+} else {
+  setCartQuantity(0);
+}
       }
 
       const catalogRes = await axios.get(
@@ -218,7 +224,7 @@ if (newQty < 1) {
     disabled
     className="w-full h-[44px] bg-gray-300 text-gray-600 rounded-full font-black text-sm"
   >
-    Vendors Cannot Purchase Products
+    Admin Cannot Purchase Products
   </button>
 ) : product.stock === 0 ? (
   <button

@@ -133,6 +133,15 @@ function Login() {
           </Link>
         </p>
 
+        <p className="text-center mt-4">
+  <Link
+    to="/otp-login"
+    className="text-[#0078ad] font-bold"
+  >
+    Login with OTP
+  </Link>
+</p>
+
       </div>
     </div>
   );
