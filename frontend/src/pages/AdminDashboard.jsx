@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useSearchParams,} from "react-router-dom";
 
 function AdminDashboard() {
   const [title, setTitle] = useState("");
@@ -12,8 +12,11 @@ function AdminDashboard() {
   const [stock, setStock] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [orders, setOrders] = useState([]);
-  const [activeTab, setActiveTab] = useState("products");
-  const navigate = useNavigate();
+   const [searchParams] = useSearchParams();
+const [activeTab, setActiveTab] = useState(
+  searchParams.get("tab") || "products"
+);  const navigate = useNavigate();
+ 
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -490,7 +493,9 @@ const updateStatus = async (id, status) => {
 
             <td className="text-center">
   <button
-    onClick={() => navigate(`/orders/${order._id}`)}
+    onClick={() =>
+  navigate(`/orders/${order._id}?from=admin`)
+}
    className="bg-[#0078ad] hover:bg-[#00618b] text-white px-3 py-1.5 rounded-lg text-sm font-semibold"
   >
     View

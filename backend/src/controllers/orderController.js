@@ -119,7 +119,7 @@ const updateOrderStatus = async (req, res) => {
 
       { status },
 
-      { new: true }
+      {returnDocument: "after"}
 
     );
 

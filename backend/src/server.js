@@ -17,6 +17,8 @@ const cartRoutes = require("./routes/cartRoutes");
 
 const orderRoutes = require("./routes/orderRoutes");
 
+const wishlistRoutes = require("./routes/wishlistRoutes");
+
 dotenv.config();
 
 connectDB();
@@ -37,6 +39,8 @@ app.use("/api/test", testRoutes);
 app.use("/api/cart", cartRoutes);
 
 app.use("/api/orders", orderRoutes);
+
+app.use("/api/wishlist", wishlistRoutes);
 
 app.get("/", (req, res) => {
   res.send("JioMart Backend Running");

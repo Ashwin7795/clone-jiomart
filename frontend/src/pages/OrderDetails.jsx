@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate,useSearchParams,} from "react-router-dom";
 import axios from "axios";
 
 function OrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+const [searchParams] = useSearchParams();
   const [order, setOrder] = useState(null);
   const token = localStorage.getItem("token");
 
@@ -57,12 +58,18 @@ function OrderDetails() {
         
         {/* Back and Page Header Controller Anchor Block */}
         <div className="flex items-center gap-3 mb-6">
-          <button 
-            onClick={() => navigate("/my-orders")}
-            className="text-gray-500 hover:text-black font-bold text-sm flex items-center gap-1 transition-colors cursor-pointer"
-          >
-            ➔
-          </button>
+         <button
+  onClick={() =>
+    navigate(
+      searchParams.get("from") === "admin"
+        ? "/admin?tab=orders"
+        : "/my-orders"
+    )
+  }
+  className="text-gray-500 hover:text-black font-bold text-sm flex items-center gap-1 transition-colors cursor-pointer"
+>
+  ← Back
+</button>
           <h1 className="text-[24px] font-bold text-gray-900 tracking-tight">Order Invoice Summary</h1>
         </div>
 
