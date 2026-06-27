@@ -1,6 +1,6 @@
 
 import React, { useState,useEffect} from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext"; // Bring in live cart state hook
 
 function Navbar({ hideSubNav }) {
@@ -15,6 +15,16 @@ const [user, setUser] = useState(
 );
 
 const { cartCount } = useCart();
+
+const location = useLocation();
+
+const [search, setSearch] = useState("");
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+
+  setSearch(params.get("search") || "");
+}, [location.search]);
 
 useEffect(() => {
   setToken(localStorage.getItem("token"));
@@ -97,19 +107,37 @@ setUser(null);
             </span>
           </div>
         </div>
+<div className="flex-1 max-w-[480px] h-9 bg-[#f0f4f9] rounded-full flex items-center px-4 border border-transparent focus-within:border-gray-300 focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(0,120,173,0.05)] transition-all font-sans">
+  
+  {/* Left-Aligned Search Icon */}
+  <svg
+    className="w-4 h-4 text-gray-500 mr-2.5 shrink-0 stroke-[2.5]"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
+  </svg>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-[480px] h-9 bg-[#f0f4f9] rounded-full flex items-center px-4 border border-transparent focus-within:border-gray-300 focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(0,120,173,0.05)] transition-all">
-          <svg className="w-4 h-4 text-[#141414] mr-2 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input 
-            type="text" 
-            placeholder="Search for 'Electronics'" 
-            className="w-full h-full bg-transparent text-[13px] font-medium text-[#000000] outline-none placeholder-[#141414]/60"
-          />
-        </div>
+  {/* Search Input Field with Enter-Key execution to prevent typing frame skips */}
+  <input
+    type="text"
+    placeholder="Search for 'Products'..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        navigate(`/?search=${encodeURIComponent(search)}`);
+      }
+    }}
+    className="w-full h-full bg-transparent text-[13px] font-medium text-gray-900 outline-none placeholder-gray-400"
+  />
 
+</div>
         {/* Right Icon Actions Group */}
         <div className="flex items-center gap-4 shrink-0 pl-2">
           
@@ -118,8 +146,11 @@ setUser(null);
             <span className="font-bold text-[15px] leading-none mb-[1px]">%</span>
           </button>
 
-         {user?.role !== "admin" && (
-  <button className="w-[30px] h-[30px] text-[#141414] hover:text-[#000000] transition-colors cursor-pointer flex items-center justify-center">
+      {user?.role !== "admin" && (
+  <button
+    onClick={() => navigate("/wishlist")}
+    className="w-[30px] h-[30px] text-[#141414] hover:text-[#000000] transition-colors cursor-pointer flex items-center justify-center"
+  >
     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
       <path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2z"/>
       <path fill="#ffffff" d="M12 16.5l-4.5-4.5c-1.2-1.2-1.2-3.1 0-4.2s3.1-1.2 4.2 0l.3.3.3-.3c1.2-1.2 3.1-1.2 4.2 0s1.2 3.1 0 4.2L12 16.5z"/>

@@ -1,8 +1,41 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
   const originalMrp = Math.round(product.price * 1.25);
+  const [wishlisted, setWishlisted] = useState(false);
+
+const token = localStorage.getItem("token");
+useEffect(() => {
+  if (token) {
+    checkWishlist();
+  }
+}, []);
+
+const checkWishlist = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:5000/api/wishlist",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          
+        },
+      }
+    );
+
+    const exists = response.data.some(
+      (item) => item.productId._id === product._id
+    );
+
+    setWishlisted(exists);
+    
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
     <div 
@@ -13,18 +46,91 @@ function ProductCard({ product }) {
       <div className="w-full aspect-square bg-[#f9f9f9] rounded-lg flex items-center justify-center p-4 relative mb-2">
         
         {/* Heart Icon - Top Left */}
-        <button className="absolute top-2 left-2 text-gray-300 hover:text-jm-red z-10 transition-colors">
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+       <button
+  onClick={async (e) => {
+    e.stopPropagation();
+
+    try {
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+
+      if (!wishlisted) {
+        await axios.post(
+          "http://localhost:5000/api/wishlist",
+          {
+            productId: product._id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setWishlisted(true);
+      } else {
+        await axios.delete(
+          `http://localhost:5000/api/wishlist/${product._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setWishlisted(false);
+      }
+    } catch (error) {
+      console.log(error.response?.data);
+    }
+  }}
+  className="absolute top-2 left-2 z-10"
+>
+          <svg className="w-5 h-5"fill={wishlisted ? "red" : "#d1d5db"} viewBox="0 0 24 24">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
         </button>
 
         {/* The JioMart "Add" Button - Top Right */}
         <button 
-          onClick={(e) => {
-             e.stopPropagation();
-             alert("Added to Cart!");
-          }}
+        onClick={async (e) => {
+  e.stopPropagation();
+
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+  await axios.post(
+  "http://localhost:5000/api/cart/add",
+      {
+        productId: product._id,
+        quantity: 1,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Added to Cart!");
+
+  }catch (error) {
+  console.log(error.response?.data);
+  console.log(error);
+
+  alert(
+    error.response?.data?.message ||
+    "Failed to add to cart"
+  );
+}
+}}
           className="absolute top-2 right-2 bg-white text-[#0078ad] border border-[#0078ad] text-[11px] font-bold px-3 py-0.5 rounded shadow-sm hover:bg-[#e5f1f7] transition-colors z-10"
         >
           Add

@@ -2,9 +2,52 @@ const Product = require("../models/Product");
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const {
+      search,
+      category,
+      brand,
+      sort,
+    } = req.query;
+
+    let filter = {};
+
+    // Search by title
+    if (search) {
+      filter.title = {
+        $regex: search,
+        $options: "i",
+      };
+    }
+
+    // Filter by category
+    if (category) {
+      filter.category = category;
+    }
+
+    // Filter by brand
+    if (brand) {
+      filter.brand = brand;
+    }
+
+    let query = Product.find(filter);
+
+    // Sorting
+    if (sort === "priceAsc") {
+      query = query.sort({ price: 1 });
+    }
+
+    if (sort === "priceDesc") {
+      query = query.sort({ price: -1 });
+    }
+
+    if (sort === "rating") {
+      query = query.sort({ rating: -1 });
+    }
+
+    const products = await query;
 
     res.status(200).json(products);
+
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -96,7 +139,7 @@ const updateProduct = async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { returnDocument: "after"}
     );
 
     res.status(200).json(updatedProduct);
