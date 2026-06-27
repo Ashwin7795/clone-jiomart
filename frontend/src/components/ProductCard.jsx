@@ -21,6 +21,7 @@ const checkWishlist = async () => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          
         },
       }
     );
@@ -30,6 +31,7 @@ const checkWishlist = async () => {
     );
 
     setWishlisted(exists);
+    
   } catch (error) {
     console.log(error);
   }
@@ -104,8 +106,8 @@ const checkWishlist = async () => {
       return;
     }
 
-    await axios.post(
-      "http://localhost:5000/api/cart",
+  await axios.post(
+  "http://localhost:5000/api/cart/add",
       {
         productId: product._id,
         quantity: 1,
