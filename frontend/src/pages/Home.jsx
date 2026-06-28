@@ -73,7 +73,6 @@ function Home() {
         {/* HERO BANNER - Shows only when no filters or search queries are active */}
         {!search && !category && !brand && !sort && (
           <div className="relative w-full h-[380px] lg:h-[420px] bg-[#8bbdc1] border-b border-gray-200 flex items-center overflow-hidden">
-            {/* Immersive background texture image overlay */}
             <div className="absolute inset-0 opacity-25 bg-[url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1920&q=80')] mix-blend-overlay bg-cover bg-center pointer-events-none"></div>
 
             {/* Inner Content Grid */}
@@ -95,6 +94,7 @@ function Home() {
                   
                   {/* Left Arrow */}
                   <button
+                    type="button"
                     onClick={() => scrollBanner("left")}
                     className="absolute left-2 z-30 w-9 h-9 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] flex items-center justify-center text-gray-700 hover:text-[#0078ad] focus:outline-none cursor-pointer border border-gray-100"
                   >
@@ -138,6 +138,7 @@ function Home() {
 
                   {/* Right Arrow */}
                   <button
+                    type="button"
                     onClick={() => scrollBanner("right")}
                     className="absolute right-2 z-30 w-9 h-9 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] flex items-center justify-center text-gray-700 hover:text-[#0078ad] focus:outline-none cursor-pointer border border-gray-100"
                   >
@@ -169,55 +170,69 @@ function Home() {
           </div>
         )}
 
-        {/* INTEGRATED DYNAMIC FILTER BAR */}
-        <div className="w-full bg-white border-b border-gray-100 select-none font-sans">
-          <div className="max-w-[1170px] mx-auto px-4 py-4 flex flex-wrap gap-4 items-center justify-end">
-            <div className="flex items-center gap-3 flex-wrap">
+        {/* YOUR CONDITIONAL BAR - Now triggers accurately whenever a search query parameter string is present */}
+        {(search || category || brand || sort) && (
+          <div className="w-full bg-white border-b border-gray-100">
+            <div className="max-w-[1170px] mx-auto px-4 py-4 flex flex-wrap gap-4 items-center justify-end">
+              <div className="flex items-center gap-3 flex-wrap">
 
-              {/* Brands Filtering Dropdown Selector */}
-              <div className="relative h-10 min-w-[170px]">
-                <select
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  className="w-full h-full bg-white border border-gray-200 rounded-xl pl-4 pr-10 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 focus:border-[#0078ad] focus:border-2 transition-all cursor-pointer appearance-none"
-                >
-                  <option value="">All Brands</option>
-                  {brands.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#0078ad]">
-                  <svg className="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
+                {/* Brands Filtering Dropdown Selector */}
+                <div className="relative h-10 min-w-[170px]">
+                  <select
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    className="w-full h-full bg-white border border-gray-200 rounded-xl pl-4 pr-10 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 focus:border-[#0078ad] focus:border-2 transition-all cursor-pointer appearance-none"
+                  >
+                    <option value="">All Brands</option>
+                    {brands.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#0078ad]">
+                    <svg className="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
 
-              {/* Sort Options Dropdown Selector */}
-              <div className="relative h-10 min-w-[165px]">
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="w-full h-full bg-white border border-gray-200 rounded-xl pl-4 pr-10 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 focus:border-[#0078ad] focus:border-2 transition-all cursor-pointer appearance-none"
-                >
-                  <option value="">Sort By</option>
-                  <option value="priceAsc">Price: Low to High</option>
-                  <option value="priceDesc">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                </select>
-                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#0078ad]">
-                  <svg className="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
+                {/* Sort Options Dropdown Selector */}
+                <div className="relative h-10 min-w-[165px]">
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="w-full h-full bg-white border border-gray-200 rounded-xl pl-4 pr-10 text-[13px] font-bold text-gray-700 outline-none hover:bg-gray-50 focus:border-[#0078ad] focus:border-2 transition-all cursor-pointer appearance-none"
+                  >
+                    <option value="">Sort By</option>
+                    <option value="priceAsc">Price: Low to High</option>
+                    <option value="priceDesc">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#0078ad]">
+                    <svg className="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBrand("");
+                    setSort("");
+                    setCategory("");
+                  }}
+                  className="h-10 px-5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
+                >
+                  Clear
+                </button>
+
+              </div>
             </div>
           </div>
-        </div>
-                    
+        )}
+
         {/* CONDITIONAL CORE VIEWPORTS INTERFACE */}
         {search || category || brand || sort ? (
           /* --- VIEWPORT 1: SEARCH & FILTER RESULTS VIEW --- */
@@ -234,7 +249,6 @@ function Home() {
               </div>
 
               {products.length === 0 ? (
-                /* Fallback layout for zero items matched */
                 <div className="w-full bg-white rounded-2xl border border-gray-100 p-16 text-center shadow-xs max-w-[480px] mx-auto mt-8">
                   <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 mx-auto mb-4 text-xl">
                     🔍
@@ -245,7 +259,6 @@ function Home() {
                   </p>
                 </div>
               ) : (
-                /* Regular Grid Return catalog layer */
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                   {products.map((product) => (
                     <div key={product._id} className="bg-white rounded-xl overflow-hidden shadow-2xs border border-gray-50 hover:shadow-md transition-shadow">
