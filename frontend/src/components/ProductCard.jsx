@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useCart } from "../context/CartContext";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
   const originalMrp = Math.round(product.price * 1.25);
   const [wishlisted, setWishlisted] = useState(false);
+  const { fetchCart } = useCart();
 
 const token = localStorage.getItem("token");
 useEffect(() => {
@@ -118,9 +120,8 @@ const checkWishlist = async () => {
         },
       }
     );
-
-    alert("Added to Cart!");
-
+await fetchCart();
+   
   }catch (error) {
   console.log(error.response?.data);
   console.log(error);

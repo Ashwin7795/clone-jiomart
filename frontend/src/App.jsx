@@ -21,6 +21,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
 import Wishlist from "./pages/Wishlist";
+import FloatingCart from "./components/FloatingCart";
 function MainLayout() {
   const location = useLocation();
   
@@ -32,6 +33,7 @@ function MainLayout() {
       {/* Pass a special flag to the Navbar so it knows whether to hide sub-navigation blocks */}
       <Navbar hideSubNav={isCartPage} />
       
+      <FloatingCart />
       <main className="flex-1 w-full pb-24">
         <Outlet />
       </main>
