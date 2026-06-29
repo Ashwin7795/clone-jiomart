@@ -6,14 +6,21 @@ import { useSearchParams } from "react-router-dom";
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [searchParams] = useSearchParams();
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("");
   const [brand, setBrand] = useState("");
+  const [totalProducts, setTotalProducts] = useState(0);
   
   // Reference for the Monsoon Banner Scroll Container
   const bannerScrollRef = useRef(null);
   const search = searchParams.get("search") || "";
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, category, brand, sort]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -24,15 +31,19 @@ function Home() {
             category,
             brand,
             sort,
+            page: currentPage,
           },
         });
-        setProducts(response.data);
+        setProducts(response.data.products);
+        setCurrentPage(response.data.currentPage);
+        setTotalPages(response.data.totalPages);
+        setTotalProducts(response.data.totalProducts);
       } catch (error) {
         console.log(error);
       }
     };
     fetchProducts();
-  }, [search, category, brand, sort]);
+  }, [search, category, brand, sort, currentPage]);
 
   // Filtering products by your database categories
   const groceries = products.filter(p => p.category === "Groceries");
@@ -143,7 +154,7 @@ function Home() {
                     className="absolute right-2 z-30 w-9 h-9 bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] flex items-center justify-center text-gray-700 hover:text-[#0078ad] focus:outline-none cursor-pointer border border-gray-100"
                   >
                     <svg className="w-5 h-5 pl-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7-7" />
                     </svg>
                   </button>
                 </div>
@@ -244,7 +255,7 @@ function Home() {
                   {search ? `Results for "${search}"` : "Filtered Products"}
                 </h2>
                 <p className="text-gray-500 mt-1 font-medium">
-                  {products.length} product{products.length !== 1 ? "s" : ""} found
+                {totalProducts} products found
                 </p>
               </div>
 
@@ -265,6 +276,50 @@ function Home() {
                       <ProductCard product={product} />
                     </div>
                   ))}
+
+                  {/* PAGINATION LAYOUT SNIPPET ADDED HERE */}
+                 {/* --- HIGH-FIDELITY DESIGN-MATCHED PAGINATION CONTROLS --- */}
+                  <div className="col-span-full flex justify-center items-center gap-2 mt-12 pt-6 border-t border-gray-100 select-none">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-5 h-10 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-[13px] shadow-2xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    >
+                      Previous
+                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                      {[...Array(totalPages)].map((_, index) => {
+                        const pageNum = index + 1;
+                        const isCurrent = currentPage === pageNum;
+                        return (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`w-10 h-10 font-sans font-bold text-[13px] rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                              isCurrent
+                                ? "bg-[#0078ad] text-white shadow-2xs"
+                                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-black"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="px-5 h-10 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-[13px] shadow-2xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    >
+                      Next
+                    </button>
+                  </div>
+
                 </div>
               )}
             </div>
