@@ -1,18 +1,22 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const Address = require("../models/Address");
 
 
 const createOrder = async (req, res) => {
   try {
-    const {
-  fullName,
-  phone,
-  address,
-  city,
-  state,
-  pincode,
-} = req.body;
+    const { addressId } = req.body;
+    const savedAddress = await Address.findOne({
+  _id: addressId,
+  userId: req.user.id,
+});
+
+if (!savedAddress) {
+  return res.status(404).json({
+    message: "Address not found",
+  });
+}
     const cart = await Cart.findOne({
       userId: req.user.id,
     }).populate("items.productId");
@@ -39,14 +43,14 @@ const createOrder = async (req, res) => {
   userId: req.user.id,
   products,
   totalAmount,
-  shippingAddress: {
-    fullName,
-    phone,
-    address,
-    city,
-    state,
-    pincode,
-  },
+shippingAddress: {
+  fullName: savedAddress.fullName,
+  phone: savedAddress.phone,
+  address: savedAddress.address,
+  city: savedAddress.city,
+  state: savedAddress.state,
+  pincode: savedAddress.pincode,
+},
 });
 
 

@@ -7,6 +7,8 @@ const getProducts = async (req, res) => {
       category,
       brand,
       sort,
+      page=1,
+      limit=10,
     } = req.query;
 
     let filter = {};
@@ -28,7 +30,10 @@ const getProducts = async (req, res) => {
     if (brand) {
       filter.brand = brand;
     }
+    const pageNumber = Number(page);
+const limitNumber = Number(limit);
 
+const skip = (pageNumber - 1) * limitNumber;
     let query = Product.find(filter);
 
     // Sorting
@@ -44,17 +49,39 @@ const getProducts = async (req, res) => {
       query = query.sort({ rating: -1 });
     }
 
-    const products = await query;
+// Apply pagination only when searching/filtering/sorting
+if (search || category || brand || sort) {
 
-    res.status(200).json(products);
+  const totalProducts = await Product.countDocuments(filter);
 
+  const products = await query
+    .skip(skip)
+    .limit(limitNumber);
+
+  return res.status(200).json({
+    products,
+    currentPage: pageNumber,
+    totalPages: Math.ceil(totalProducts / limitNumber),
+    totalProducts,
+  });
+
+}
+
+// Homepage → return all products
+const products = await query;
+
+res.status(200).json({
+  products,
+  currentPage: 1,
+  totalPages: 1,
+  totalProducts: products.length,
+});
   } catch (error) {
     res.status(500).json({
       message: error.message,
     });
   }
 };
-
 
 const getProductById = async (req, res) => {
   try {
