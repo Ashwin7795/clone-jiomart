@@ -2,17 +2,18 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import ProductRow from "../components/ProductRow";
 import ProductCard from "../components/ProductCard";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams,useNavigate} from "react-router-dom";
 
 function Home() {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchParams] = useSearchParams();
-  const [category, setCategory] = useState("");
+const category = searchParams.get("category") || "";
   const [sort, setSort] = useState("");
   const [brand, setBrand] = useState("");
   const [totalProducts, setTotalProducts] = useState(0);
+  const navigate = useNavigate();
   
   // Reference for the Monsoon Banner Scroll Container
   const bannerScrollRef = useRef(null);
@@ -232,7 +233,7 @@ function Home() {
                   onClick={() => {
                     setBrand("");
                     setSort("");
-                    setCategory("");
+                     navigate("/");
                   }}
                   className="h-10 px-5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 font-semibold transition-colors cursor-pointer"
                 >
@@ -252,7 +253,11 @@ function Home() {
               
               <div className="mb-6 text-left">
                 <h2 className="text-[28px] font-black tracking-tight">
-                  {search ? `Results for "${search}"` : "Filtered Products"}
+               {search
+  ? `Results for "${search}"`
+  : category
+  ? category
+  : "Filtered Products"}
                 </h2>
                 <p className="text-gray-500 mt-1 font-medium">
                 {totalProducts} products found
