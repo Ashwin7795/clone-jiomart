@@ -225,14 +225,7 @@ function Cart() {
           {/* RIGHT COLUMN: Highly Configured Summary Framework Modules */}
           <div className="space-y-5 w-full">
             
-            {/* Coupons Card */}
-            <div className="bg-white rounded-[16px] p-5 border border-gray-100 flex items-center justify-between cursor-pointer group shadow-sm">
-              <div className="flex items-center gap-4">
-                <span className="text-[#00b259] text-2xl">⚙️</span>
-                <span className="text-[16px] font-bold text-gray-800">Login to apply coupon</span>
-              </div>
-              <span className="text-gray-400 font-bold text-lg group-hover:translate-x-0.5 transition-transform">➔</span>
-            </div>
+           
 
             {/* WhatsApp Updates Card */}
             <div className="bg-white rounded-[16px] p-5 border border-gray-100 flex items-center justify-between shadow-sm">

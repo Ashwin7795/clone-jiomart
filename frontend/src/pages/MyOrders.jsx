@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import OrderTimeline from "../components/OrderTimeline";
 function MyOrders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -125,7 +126,10 @@ function MyOrders() {
 
         ₹{order.totalAmount}
 
-      </p>
+           </p>
+           <div className="mt-5">
+  <OrderTimeline status={order.status} />
+</div>
 
     </div>
 
