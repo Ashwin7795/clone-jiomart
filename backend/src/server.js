@@ -2,6 +2,8 @@ const express = require("express");
 
 const dotenv = require("dotenv");
 
+dotenv.config();
+
 const connectDB = require("./config/db");
 
 const cors = require("cors");
@@ -21,7 +23,9 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 
  const addressRoutes = require("./routes/addressRoutes");
 
-dotenv.config();
+ const paymentRoutes = require("./routes/paymentRoutes");
+
+
 
 connectDB();
 
@@ -45,6 +49,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 
 app.use("/api/address", addressRoutes);
+
+app.use("/api/payment", paymentRoutes);
 
 app.get("/", (req, res) => {
   res.send("JioMart Backend Running");

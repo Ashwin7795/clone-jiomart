@@ -19,6 +19,9 @@ function Checkout() {
   const { fetchCart } = useCart();
   const navigate = useNavigate();
 
+  
+
+
   useEffect(() => {
     fetchAddresses();
   }, []);
@@ -159,6 +162,89 @@ function Checkout() {
     }
   };
 
+const handlePayment = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // TODO: We'll replace this with the cart total later
+    const amount = 50000;
+
+    const response = await axios.post(
+      "http://localhost:5000/api/payment/create-order",
+      { amount },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: response.data.amount,
+      currency: response.data.currency,
+      order_id: response.data.id,
+
+      name: "JioMart",
+
+      description: "Order Payment",
+
+     handler: async function (payment) {
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    await axios.post(
+      "http://localhost:5000/api/payment/verify",
+      {
+        razorpay_order_id: payment.razorpay_order_id,
+        razorpay_payment_id: payment.razorpay_payment_id,
+        razorpay_signature: payment.razorpay_signature,
+
+        addressId: selectedAddress,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    await fetchCart();
+
+    navigate("/order-success");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Payment verification failed");
+
+  }
+
+},
+
+      modal: {
+        ondismiss: function () {
+          alert("Payment cancelled");
+        },
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+
+    razorpay.on("payment.failed", function (response) {
+      console.log(response.error);
+      alert("Payment Failed");
+    });
+
+    razorpay.open();
+
+  } catch (error) {
+    console.log(error);
+  }
+};
   return (
     <div className="w-full bg-[#f3f4f6] min-h-screen py-10 font-sans antialiased text-[#141414] select-none">
       <div className="max-w-[1170px] mx-auto px-6">
@@ -424,7 +510,7 @@ function Checkout() {
               <button
                 type="button"
                 disabled={!selectedAddress}
-                onClick={handlePlaceOrder}
+               onClick={handlePayment}
                 className={`w-full h-13 mt-8 font-sans font-bold text-base rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
                   selectedAddress
                     ? "bg-[#0078ad] text-white hover:bg-[#0c5273] active:bg-[#00364e] cursor-pointer active:scale-[0.99]"
