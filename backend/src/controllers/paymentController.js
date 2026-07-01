@@ -7,19 +7,27 @@ const Address = require("../models/Address");
 
 const createRazorpayOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+   const cart = await Cart.findOne({
+  userId: req.user.id,
+}).populate("items.productId");
 
-    if (!amount || amount < 100) {
-      return res.status(400).json({
-        message: "Minimum amount is ₹1",
-      });
-    }
+if (!cart || cart.items.length === 0) {
+  return res.status(400).json({
+    message: "Cart is empty",
+  });
+}
 
-    const options = {
-      amount,
-      currency: "INR",
-      receipt: `receipt_${Date.now()}`,
-    };
+const totalAmount = cart.items.reduce(
+  (total, item) =>
+    total + item.productId.price * item.quantity,
+  0
+);
+
+const options = {
+  amount: totalAmount * 100,
+  currency: "INR",
+  receipt: `receipt_${Date.now()}`,
+};
 
     const order = await razorpay.orders.create(options);
 
@@ -100,6 +108,17 @@ const totalAmount = products.reduce(
   (total, item) => total + item.price * item.quantity,
   0
 );
+
+const existingOrder = await Order.findOne({
+  "payment.paymentId": razorpay_payment_id,
+});
+
+if (existingOrder) {
+  return res.status(200).json({
+    success: true,
+    order: existingOrder,
+  });
+}
 
 
 const order = await Order.create({

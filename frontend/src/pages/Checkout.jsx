@@ -15,9 +15,10 @@ function Checkout() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
-  
+  const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const { fetchCart } = useCart();
   const navigate = useNavigate();
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   
 
@@ -164,14 +165,13 @@ function Checkout() {
 
 const handlePayment = async () => {
   try {
+    setProcessingPayment(true);
     const token = localStorage.getItem("token");
 
-    // TODO: We'll replace this with the cart total later
-    const amount = 50000;
-
+    
     const response = await axios.post(
-      "http://localhost:5000/api/payment/create-order",
-      { amount },
+  "http://localhost:5000/api/payment/create-order",
+  {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -216,18 +216,17 @@ const handlePayment = async () => {
     navigate("/order-success");
 
   } catch (error) {
-
-    console.log(error);
-
-    alert("Payment verification failed");
-
-  }
+  console.log(error);
+} finally {
+  setProcessingPayment(false);
+}
 
 },
 
       modal: {
         ondismiss: function () {
-          alert("Payment cancelled");
+         setProcessingPayment(false);
+alert("Payment cancelled");
         },
       },
     };
@@ -236,14 +235,16 @@ const handlePayment = async () => {
 
     razorpay.on("payment.failed", function (response) {
       console.log(response.error);
-      alert("Payment Failed");
+     setProcessingPayment(false);
+alert("Payment Failed");
     });
 
     razorpay.open();
 
-  } catch (error) {
-    console.log(error);
-  }
+ } catch (error) {
+  console.log(error);
+  setProcessingPayment(false);
+}
 };
   return (
     <div className="w-full bg-[#f3f4f6] min-h-screen py-10 font-sans antialiased text-[#141414] select-none">
@@ -491,33 +492,49 @@ const handlePayment = async () => {
               </h2>
 
               {/* JioMart Native Style Radio Button Field */}
-              <div className="w-full border border-gray-200 rounded-xl p-4 bg-[#f9f9f9]/50 flex items-center gap-4 cursor-pointer hover:border-[#0078ad]/40 transition-all">
-                <input
-                  type="radio"
-                  id="cod"
-                  name="payment"
-                  checked
-                  readOnly
-                  className="w-5 h-5 accent-[#0078ad] cursor-pointer"
-                />
-                <label htmlFor="cod" className="flex flex-col cursor-pointer text-left">
-                  <span className="text-[15px] font-bold text-black">Cash On Delivery (COD)</span>
-                  <span className="text-[12px] text-gray-500 font-medium mt-0.5">Pay safely via Cash, UPI, or Card at your doorstep</span>
-                </label>
-              </div>
+              <div className="space-y-4">
 
+  <label className="flex items-center gap-3 cursor-pointer">
+    <input
+      type="radio"
+      value="razorpay"
+      checked={paymentMethod === "razorpay"}
+      onChange={(e) => setPaymentMethod(e.target.value)}
+    />
+    <span>Razorpay (UPI / Card / Net Banking)</span>
+  </label>
+
+  <label className="flex items-center gap-3 cursor-pointer">
+    <input
+      type="radio"
+      value="cod"
+      checked={paymentMethod === "cod"}
+      onChange={(e) => setPaymentMethod(e.target.value)}
+    />
+    <span>Cash on Delivery</span>
+  </label>
+
+</div>
               {/* Interactive Submit Placement Button */}
               <button
                 type="button"
-                disabled={!selectedAddress}
-               onClick={handlePayment}
+             disabled={!selectedAddress || processingPayment}
+              onClick={
+  paymentMethod === "razorpay"
+    ? handlePayment
+    : handlePlaceOrder
+}
                 className={`w-full h-13 mt-8 font-sans font-bold text-base rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
                   selectedAddress
                     ? "bg-[#0078ad] text-white hover:bg-[#0c5273] active:bg-[#00364e] cursor-pointer active:scale-[0.99]"
                     : "bg-[#b8e0f2] text-white cursor-not-allowed"
                 }`}
               >
-                Place Order
+                {processingPayment
+  ? "Processing..."
+  : paymentMethod === "razorpay"
+  ? "Proceed to Payment"
+  : "Place COD Order"}
               </button>
 
               <p className="text-[12px] text-gray-400 font-medium text-center mt-4 leading-normal">
