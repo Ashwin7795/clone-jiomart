@@ -157,12 +157,6 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    if (product.adminId.toString() !== req.user.id) {
-      return res.status(403).json({
-        message: "Not authorized",
-      });
-    }
-
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -188,13 +182,7 @@ const deleteProduct = async (req, res) => {
       });
     }
 
-    if (product.adminId.toString() !== req.user.id) {
-      return res.status(403).json({
-        message: "Not authorized",
-      });
-    }
-
-    await product.deleteOne();
+  await product.deleteOne();
 
     res.status(200).json({
       message: "Product deleted successfully",

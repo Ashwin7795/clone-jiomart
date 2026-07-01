@@ -46,4 +46,6 @@ router.get("/subcategory/:subcategory", getProductsBySubcategory);
 
 router.get("/:id", getProductById);
 
+
+
 module.exports = router;
