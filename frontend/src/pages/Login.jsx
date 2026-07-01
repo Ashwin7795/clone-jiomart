@@ -18,11 +18,16 @@ function Login() {
         }
       );
 
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+     localStorage.setItem("token", response.data.token);
+localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      console.log(response.data);
-      navigate("/");
+const user = response.data.user;
+
+if (user.role === "admin") {
+  navigate("/admin");
+} else {
+  navigate("/");
+}
     } catch (error) {
       console.log(error.response?.data);
       alert(error.response?.data?.message || "Login Failed");

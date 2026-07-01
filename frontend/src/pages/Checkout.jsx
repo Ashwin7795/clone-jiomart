@@ -20,9 +20,6 @@ function Checkout() {
   const navigate = useNavigate();
   const [processingPayment, setProcessingPayment] = useState(false);
 
-  
-
-
   useEffect(() => {
     fetchAddresses();
   }, []);
@@ -163,89 +160,76 @@ function Checkout() {
     }
   };
 
-const handlePayment = async () => {
-  try {
-    setProcessingPayment(true);
-    const token = localStorage.getItem("token");
+  const handlePayment = async () => {
+    try {
+      setProcessingPayment(true);
+      const token = localStorage.getItem("token");
+      
+      const response = await axios.post(
+        "http://localhost:5000/api/payment/create-order",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    
-    const response = await axios.post(
-  "http://localhost:5000/api/payment/create-order",
-  {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: response.data.amount,
+        currency: response.data.currency,
+        order_id: response.data.id,
+        name: "JioMart",
+        description: "Order Payment",
+        handler: async function (payment) {
+          try {
+            const token = localStorage.getItem("token");
+            await axios.post(
+              "http://localhost:5000/api/payment/verify",
+              {
+                razorpay_order_id: payment.razorpay_order_id,
+                razorpay_payment_id: payment.razorpay_payment_id,
+                razorpay_signature: payment.razorpay_signature,
+                addressId: selectedAddress,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            await fetchCart();
+            navigate("/order-success");
+          } catch (error) {
+            console.log(error);
+          } finally {
+            setProcessingPayment(false);
+          }
         },
-      }
-    );
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: response.data.amount,
-      currency: response.data.currency,
-      order_id: response.data.id,
-
-      name: "JioMart",
-
-      description: "Order Payment",
-
-     handler: async function (payment) {
-
-  try {
-
-    const token = localStorage.getItem("token");
-
-    await axios.post(
-      "http://localhost:5000/api/payment/verify",
-      {
-        razorpay_order_id: payment.razorpay_order_id,
-        razorpay_payment_id: payment.razorpay_payment_id,
-        razorpay_signature: payment.razorpay_signature,
-
-        addressId: selectedAddress,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+        modal: {
+          ondismiss: function () {
+            setProcessingPayment(false);
+            alert("Payment cancelled");
+          },
         },
-      }
-    );
+      };
 
-    await fetchCart();
+      const razorpay = new window.Razorpay(options);
 
-    navigate("/order-success");
+      razorpay.on("payment.failed", function (response) {
+        console.log(response.error);
+        setProcessingPayment(false);
+        alert("Payment Failed");
+      });
 
-  } catch (error) {
-  console.log(error);
-} finally {
-  setProcessingPayment(false);
-}
+      razorpay.open();
+    } catch (error) {
+      console.log(error);
+      setProcessingPayment(false);
+    }
+  };
 
-},
-
-      modal: {
-        ondismiss: function () {
-         setProcessingPayment(false);
-alert("Payment cancelled");
-        },
-      },
-    };
-
-    const razorpay = new window.Razorpay(options);
-
-    razorpay.on("payment.failed", function (response) {
-      console.log(response.error);
-     setProcessingPayment(false);
-alert("Payment Failed");
-    });
-
-    razorpay.open();
-
- } catch (error) {
-  console.log(error);
-  setProcessingPayment(false);
-}
-};
   return (
     <div className="w-full bg-[#f3f4f6] min-h-screen py-10 font-sans antialiased text-[#141414] select-none">
       <div className="max-w-[1170px] mx-auto px-6">
@@ -297,7 +281,6 @@ alert("Payment Failed");
                         {item.address}, {item.city}, {item.state} - <span className="font-bold text-gray-900">{item.pincode}</span>
                       </p>
 
-                      {/* Unified Action Layout Group Block */}
                       <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-100/60">
                         <button
                           type="button"
@@ -323,7 +306,6 @@ alert("Payment Failed");
                           Delete
                         </button>
                       </div>
-
                     </div>
                   </label>
                 ))}
@@ -484,60 +466,85 @@ alert("Payment Failed");
             )}
           </div>
 
-          {/* RIGHT COLUMN: Sticky Payment Configuration Module Frame */}
+          {/* RIGHT COLUMN: Sticky Payment Selection and Breakdown Card */}
           <div className="space-y-5 w-full">
-            <div className="bg-white rounded-[20px] p-6 border border-gray-100 shadow-sm sticky top-28">
-              <h2 className="text-[19px] font-bold text-black border-b border-gray-100 pb-4 mb-5 tracking-tight">
+            <div className="bg-white rounded-[20px] p-6 border border-gray-100 shadow-sm sticky top-28 space-y-6">
+              <h2 className="text-[19px] font-bold text-black border-b border-gray-100 pb-4 tracking-tight text-left">
                 Payment Option
               </h2>
 
-              {/* JioMart Native Style Radio Button Field */}
-              <div className="space-y-4">
+              {/* High-Fidelity Radio Card Selector Track */}
+              <div className="flex flex-col gap-3.5 w-full">
+                
+                {/* Option 1: Razorpay Electronic Gateway Trigger */}
+                <label 
+                  className={`w-full border rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-all ${
+                    paymentMethod === "razorpay"
+                      ? "border-[#0078ad] bg-[#e5f1f7]/30 shadow-3xs"
+                      : "border-gray-200 bg-[#f9f9f9]/40 hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    value="razorpay"
+                    name="paymentOption"
+                    checked={paymentMethod === "razorpay"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="w-4 h-4 accent-[#0078ad] shrink-0"
+                  />
+                  <div className="flex flex-col text-left min-w-0">
+                    <span className="text-[14px] font-bold text-black leading-tight">Online Payment</span>
+                    <span className="text-[11px] text-gray-500 font-semibold mt-0.5 leading-snug">
+                      Pay instantly via UPI, NetBanking, Credit or Debit Cards
+                    </span>
+                  </div>
+                </label>
 
-  <label className="flex items-center gap-3 cursor-pointer">
-    <input
-      type="radio"
-      value="razorpay"
-      checked={paymentMethod === "razorpay"}
-      onChange={(e) => setPaymentMethod(e.target.value)}
-    />
-    <span>Razorpay (UPI / Card / Net Banking)</span>
-  </label>
+                {/* Option 2: Cash On Delivery Safe Fallback Terminal */}
+                <label 
+                  className={`w-full border rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-all ${
+                    paymentMethod === "cod"
+                      ? "border-[#0078ad] bg-[#e5f1f7]/30 shadow-3xs"
+                      : "border-gray-200 bg-[#f9f9f9]/40 hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    value="cod"
+                    name="paymentOption"
+                    checked={paymentMethod === "cod"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="w-4 h-4 accent-[#0078ad] shrink-0"
+                  />
+                  <div className="flex flex-col text-left min-w-0">
+                    <span className="text-[14px] font-bold text-black leading-tight">Cash on Delivery (COD)</span>
+                    <span className="text-[11px] text-gray-500 font-semibold mt-0.5 leading-snug">
+                      Pay with cash, UPI or card right at your doorstep
+                    </span>
+                  </div>
+                </label>
 
-  <label className="flex items-center gap-3 cursor-pointer">
-    <input
-      type="radio"
-      value="cod"
-      checked={paymentMethod === "cod"}
-      onChange={(e) => setPaymentMethod(e.target.value)}
-    />
-    <span>Cash on Delivery</span>
-  </label>
+              </div>
 
-</div>
-              {/* Interactive Submit Placement Button */}
+              {/* Action Submit Button */}
               <button
                 type="button"
-             disabled={!selectedAddress || processingPayment}
-              onClick={
-  paymentMethod === "razorpay"
-    ? handlePayment
-    : handlePlaceOrder
-}
-                className={`w-full h-13 mt-8 font-sans font-bold text-base rounded-full flex items-center justify-center transition-all duration-200 shadow-sm ${
-                  selectedAddress
-                    ? "bg-[#0078ad] text-white hover:bg-[#0c5273] active:bg-[#00364e] cursor-pointer active:scale-[0.99]"
-                    : "bg-[#b8e0f2] text-white cursor-not-allowed"
+                disabled={!selectedAddress || processingPayment}
+                onClick={paymentMethod === "razorpay" ? handlePayment : handlePlaceOrder}
+                className={`w-full h-12 font-sans font-bold text-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-xs ${
+                  selectedAddress && !processingPayment
+                    ? "bg-[#0078ad] text-white hover:bg-[#0c5273] active:bg-[#00364e] cursor-pointer active:scale-[0.995]"
+                    : "bg-[#b8e0f2] text-white cursor-not-allowed opacity-80"
                 }`}
               >
                 {processingPayment
-  ? "Processing..."
-  : paymentMethod === "razorpay"
-  ? "Proceed to Payment"
-  : "Place COD Order"}
+                  ? "Processing Payment..."
+                  : paymentMethod === "razorpay"
+                  ? "Proceed to Payment"
+                  : "Place COD Order"}
               </button>
 
-              <p className="text-[12px] text-gray-400 font-medium text-center mt-4 leading-normal">
+              <p className="text-[11px] text-gray-400 font-semibold text-center leading-normal">
                 By processing order checkouts, you agree to comply with our commercial store distribution policies.
               </p>
             </div>

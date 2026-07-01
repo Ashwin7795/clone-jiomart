@@ -3,9 +3,10 @@ import {
   Routes,
   Route,
   Outlet,
-  useLocation
+  useLocation,
+  useNavigate,
 } from "react-router-dom";
-
+import { useEffect } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -23,17 +24,31 @@ import OrderDetails from "./pages/OrderDetails";
 import Wishlist from "./pages/Wishlist";
 import FloatingCart from "./components/FloatingCart";
 function MainLayout() {
+ 
   const location = useLocation();
-  
-  // Check if the user is currently looking at the cart page layout path
+  const navigate = useNavigate();
+const user = JSON.parse(localStorage.getItem("user"));
+const isAdmin = user?.role === "admin";
+
   const isCartPage = location.pathname === "/cart";
+   useEffect(() => {
+ if (
+  isAdmin &&
+  location.pathname !== "/admin" &&
+  !location.pathname.startsWith("/orders/")
+) {
+  navigate("/admin");
+}
+}, [isAdmin, location.pathname, navigate]);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f5f5f5]">
       {/* Pass a special flag to the Navbar so it knows whether to hide sub-navigation blocks */}
-      <Navbar hideSubNav={isCartPage} />
+     {!isAdmin && (
+  <Navbar hideSubNav={isCartPage} />
+)}
       
-      <FloatingCart />
+    {!isAdmin && <FloatingCart />}
       <main className="flex-1 w-full pb-24">
         <Outlet />
       </main>
