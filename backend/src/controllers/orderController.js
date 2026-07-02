@@ -51,6 +51,10 @@ shippingAddress: {
   state: savedAddress.state,
   pincode: savedAddress.pincode,
 },
+payment: {
+    method: "COD",
+    status: "Pending",
+  },
 });
 
 

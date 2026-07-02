@@ -10,6 +10,7 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  getRelatedProducts,
 } = require("../controllers/productController");
 
 const {
@@ -44,8 +45,9 @@ router.get("/category/:category", getProductsByCategory);
 
 router.get("/subcategory/:subcategory", getProductsBySubcategory);
 
-router.get("/:id", getProductById);
+router.get("/:id/related", getRelatedProducts);
 
+router.get("/:id", getProductById);
 
 
 module.exports = router;

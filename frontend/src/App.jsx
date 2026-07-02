@@ -6,6 +6,7 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop";
 import { useEffect } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -23,32 +24,35 @@ import MyOrders from "./pages/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
 import Wishlist from "./pages/Wishlist";
 import FloatingCart from "./components/FloatingCart";
+
 function MainLayout() {
  
   const location = useLocation();
   const navigate = useNavigate();
-const user = JSON.parse(localStorage.getItem("user"));
-const isAdmin = user?.role === "admin";
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "admin";
 
   const isCartPage = location.pathname === "/cart";
-   useEffect(() => {
- if (
-  isAdmin &&
-  location.pathname !== "/admin" &&
-  !location.pathname.startsWith("/orders/")
-) {
-  navigate("/admin");
-}
-}, [isAdmin, location.pathname, navigate]);
+  
+  useEffect(() => {
+    if (
+      isAdmin &&
+      location.pathname !== "/admin" &&
+      !location.pathname.startsWith("/orders/")
+    ) {
+      navigate("/admin");
+    }
+  }, [isAdmin, location.pathname, navigate]);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f5f5f5]">
       {/* Pass a special flag to the Navbar so it knows whether to hide sub-navigation blocks */}
-     {!isAdmin && (
-  <Navbar hideSubNav={isCartPage} />
-)}
+      {!isAdmin && (
+        <Navbar hideSubNav={isCartPage} />
+      )}
       
-    {!isAdmin && <FloatingCart />}
+      {!isAdmin && <FloatingCart />}
+      
       <main className="flex-1 w-full pb-24">
         <Outlet />
       </main>
@@ -63,12 +67,13 @@ function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        {/* Rendered directly at the root of the Router tree to automatically handle view resets */}
+        <ScrollToTop /> 
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/otp-login" element={<OtpLogin />} />
           
-
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/admin" element={<AdminDashboard />} />
@@ -79,7 +84,7 @@ function App() {
             <Route path="/my-orders" element={<MyOrders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
             <Route path="/wishlist" element={<Wishlist />} />
-        </Route>
+          </Route>
         </Routes>
       </BrowserRouter>
     </CartProvider>

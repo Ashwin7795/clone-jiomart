@@ -543,6 +543,7 @@ function AdminDashboard() {
                     <tr className="text-gray-500 text-sm border-b">
                       <th className="text-left py-3 font-semibold">Customer</th>
                       <th className="text-left font-semibold">Amount</th>
+                      <th className="text-left font-semibold">Payment</th>
                       <th className="text-left font-semibold">Status</th>
                       <th className="text-center font-semibold">Update</th>
                       <th className="text-center font-semibold">Details</th>
@@ -564,6 +565,17 @@ function AdminDashboard() {
                         <td className="py-4 text-sm font-bold text-gray-900">
                           ₹{order.totalAmount}
                         </td>
+                        <td className="py-4">
+  <span
+    className={`px-3 py-1 rounded-full text-xs font-bold ${
+      order.payment?.method === "Razorpay"
+        ? "bg-green-100 text-green-700"
+        : "bg-orange-100 text-orange-700"
+    }`}
+  >
+    {order.payment?.method || "COD"}
+  </span>
+</td>
                         <td className="py-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${
                             order.status === "Delivered" ? "bg-green-100 text-green-700" :
