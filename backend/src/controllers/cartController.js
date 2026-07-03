@@ -166,11 +166,15 @@ if (quantity > product.stock) {
         message: "Item not found in cart",
       });
     }
+if (quantity <= 0) {
+  cart.items = cart.items.filter(
+    (item) => item.productId.toString() !== productId
+  );
+} else {
+  item.quantity = quantity;
+}
 
-    item.quantity = quantity;
-
-    await cart.save();
-
+await cart.save();
     res.status(200).json(cart);
 
   } catch (error) {

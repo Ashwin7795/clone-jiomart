@@ -43,11 +43,95 @@ const expandDescription = (base, category) => {
   }
 };
 
+// High-Fidelity Authentic Multi-Image Indian E-Commerce Products
+const premiumAuthenticProducts = [
+  {
+    title: "Sony WH-1000XM4 Wireless Noise Cancelling Headphones",
+    brand: "Sony",
+    category: "Electronics",
+    subcategory: "mobile-accessories",
+    price: 19990,
+    stock: 45,
+    rating: 4.8,
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "Apple iPhone 15 Pro (128 GB) - Natural Titanium",
+    brand: "Apple",
+    category: "Electronics",
+    subcategory: "smartphones",
+    price: 129900,
+    stock: 14,
+    rating: 4.9,
+    images: [
+      "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1565630916779-e303be97b6f5?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "OnePlus 12R (Cool Blue, 8GB RAM, 128GB Storage)",
+    brand: "OnePlus",
+    category: "Electronics",
+    subcategory: "smartphones",
+    price: 39999,
+    stock: 28,
+    rating: 4.7,
+    images: [
+      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "Tata Sampann Premium Unpolished Toor Dal",
+    brand: "Tata",
+    category: "Groceries",
+    subcategory: "Staples",
+    price: 185,
+    stock: 120,
+    rating: 4.5,
+    images: [
+      "https://images.unsplash.com/photo-1585993040144-83a8da087db5?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1596375361095-d227b6846755?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "Nescafe Classic Instant Coffee Powder Dawn Jar",
+    brand: "Nescafe",
+    category: "Groceries",
+    subcategory: "Beverages",
+    price: 340,
+    stock: 85,
+    rating: 4.6,
+    images: [
+      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80"
+    ]
+  },
+  {
+    title: "Samsung Galaxy Watch 6 Bluetooth (44mm, Graphite)",
+    brand: "Samsung",
+    category: "Electronics",
+    subcategory: "mobile-accessories",
+    price: 29999,
+    stock: 22,
+    rating: 4.6,
+    images: [
+      "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?auto=format&fit=crop&w=600&q=80"
+    ]
+  }
+];
+
 const seedData = async () => {
   try {
     await connectDB();
 
-    // 1. Wipe the old corrupted database entries
+    // 1. Wipe the old database entries
     await User.deleteMany();
     await Product.deleteMany();
 
@@ -55,38 +139,61 @@ const seedData = async () => {
       name: "Demo Vendor",
       email: "vendor@jiomart.com",
       password: "123456",
-      role: "vendor",
+      phone: "9876543210",
+      role: "admin",
     });
 
-    console.log("Vendor Created. Fetching real products...");
+    console.log("Vendor Created. Fetching raw products...");
 
-    // 2. Fetch 190+ real products with guaranteed working image URLs
+    // 2. Fetch products from the public API database
     const response = await fetch("https://dummyjson.com/products?limit=194");
     const data = await response.json();
 
-    // 3. Map the external data perfectly into your Mongoose Schema
-    const productsToInsert = data.products.map((item) => {
+    // 3. Map the public API data safely into your Mongoose fields
+    const apiProducts = data.products.map((item) => {
       const mappedCategory = mapToSchemaCategory(item.category);
       
+      // Fallback fallback mechanism ensures multiple images if the item dataset contains them
+      let productImages = [item.thumbnail];
+      if (item.images && item.images.length > 0) {
+        productImages = item.images;
+      }
+
       return {
         vendorId: vendor._id,
         title: item.title,
-        // DYNAMICALLY EXTENDED DESCRIPTION LINE
         description: expandDescription(item.description, mappedCategory),
         category: mappedCategory,
-        subcategory: item.category, // Keeps the specific tag (e.g., 'smartphones')
+        subcategory: item.category,
         brand: item.brand || "Authentic",
-        price: Math.round(item.price * 80), // Converts USD to INR roughly
+        price: Math.round(item.price * 80),
         stock: item.stock || 50,
-        images: item.images && item.images.length > 0 ? item.images : [item.thumbnail],
+        images: productImages,
         rating: item.rating || 4.0,
       };
     });
 
-    // 4. Inject into MongoDB
+    // 4. Map the guaranteed premium products into your format
+    const localPremiumProducts = premiumAuthenticProducts.map((item) => ({
+      vendorId: vendor._id,
+      title: item.title,
+      description: expandDescription("Premium authentic release.", item.category),
+      category: item.category,
+      subcategory: item.subcategory,
+      brand: item.brand,
+      price: item.price,
+      stock: item.stock,
+      images: item.images,
+      rating: item.rating,
+    }));
+
+    // 5. Merge both sets together (Premium items go first)
+    const productsToInsert = [...localPremiumProducts, ...apiProducts];
+
+    // 6. Inject final combined set into MongoDB
     await Product.insertMany(productsToInsert);
 
-    console.log(`SUCCESS: ${productsToInsert.length} Perfect Products Inserted!`);
+    console.log(`SUCCESS: ${productsToInsert.length} Perfect Products Inserted! (Including authentic multi-image items)`);
     process.exit();
 
   } catch (error) {

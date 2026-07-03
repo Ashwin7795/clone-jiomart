@@ -1,17 +1,30 @@
 import { useRef } from "react";
 import ProductCard from "./ProductCard";
+import { useNavigate } from "react-router-dom";
 
 function ProductRow({ title, products }) {
   const rowScrollRef = useRef(null);
+  const navigate = useNavigate();
 
   if (!products || products.length === 0) return null;
 
   // Handles smooth stepping when clicking the structural floating arrows
   const handleScroll = (direction) => {
     if (rowScrollRef.current) {
-      // Scrolls roughly by the width of 3 product cards at a time
       const scrollAmount = direction === "left" ? -600 : 600;
       rowScrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const showNavigationArrows = products.length > 5;
+
+  // Helper function to safely extract category values from the row dataset
+  const handleViewAllRedirect = () => {
+    const firstProductCategory = products[0]?.category;
+    if (firstProductCategory) {
+      navigate(`/?category=${encodeURIComponent(firstProductCategory)}`);
+    } else {
+      navigate("/");
     }
   };
 
@@ -24,7 +37,11 @@ function ProductRow({ title, products }) {
           <h2 className="text-[16px] md:text-[18px] font-black text-gray-900 tracking-tight">
             {title}
           </h2>
-          <button className="text-[#0078ad] text-[12px] font-bold tracking-tight hover:underline cursor-pointer">
+          <button 
+            type="button"
+            onClick={handleViewAllRedirect}
+            className="text-[#0078ad] text-[12px] font-bold tracking-tight hover:underline cursor-pointer bg-transparent border-none outline-none"
+          >
             View all
           </button>
         </div>
@@ -32,13 +49,16 @@ function ProductRow({ title, products }) {
         {/* Carousel Window Wrapper */}
         <div className="relative w-full flex items-center">
           
-          {/* Left Arrow Button - Positioned exactly over the cards */}
-          <button 
-            onClick={() => handleScroll("left")} 
-            className="absolute left-0 z-20 w-8 h-8 bg-white/95 text-gray-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-gray-100 flex items-center justify-center font-bold text-[14px] hover:text-[#0078ad] transition-all -translate-y-6 focus:outline-none cursor-pointer"
-          >
-            ❮
-          </button>
+          {/* Left Arrow Button */}
+          {showNavigationArrows && (
+            <button 
+              type="button"
+              onClick={() => handleScroll("left")} 
+              className="absolute left-0 z-20 w-8 h-8 bg-white/95 text-gray-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-gray-100 flex items-center justify-center font-bold text-[14px] hover:text-[#0078ad] transition-all -translate-y-6 focus:outline-none cursor-pointer"
+            >
+              ❮
+            </button>
+          )}
 
           {/* Horizontal Side-Scroll Track */}
           <div 
@@ -52,13 +72,16 @@ function ProductRow({ title, products }) {
             ))}
           </div>
 
-          {/* Right Arrow Button - Positioned exactly over the cards */}
-          <button 
-            onClick={() => handleScroll("right")} 
-            className="absolute right-0 z-20 w-8 h-8 bg-white/95 text-gray-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-gray-100 flex items-center justify-center font-bold text-[14px] hover:text-[#0078ad] transition-all -translate-y-6 focus:outline-none cursor-pointer"
-          >
-            ❯
-          </button>
+          {/* Right Arrow Button */}
+          {showNavigationArrows && (
+            <button 
+              type="button"
+              onClick={() => handleScroll("right")} 
+              className="absolute right-0 z-20 w-8 h-8 bg-white/95 text-gray-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-gray-100 flex items-center justify-center font-bold text-[14px] hover:text-[#0078ad] transition-all -translate-y-6 focus:outline-none cursor-pointer"
+            >
+              ❯
+            </button>
+          )}
 
         </div>
 
