@@ -86,19 +86,7 @@ const premiumAuthenticProducts = [
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80"
     ]
   },
-  {
-    title: "Tata Sampann Premium Unpolished Toor Dal",
-    brand: "Tata",
-    category: "Groceries",
-    subcategory: "Staples",
-    price: 185,
-    stock: 120,
-    rating: 4.5,
-    images: [
-      "https://images.unsplash.com/photo-1585993040144-83a8da087db5?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1596375361095-d227b6846755?auto=format&fit=crop&w=600&q=80"
-    ]
-  },
+
   {
     title: "Nescafe Classic Instant Coffee Powder Dawn Jar",
     brand: "Nescafe",
