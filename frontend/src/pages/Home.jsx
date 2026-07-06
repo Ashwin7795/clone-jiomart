@@ -3,7 +3,7 @@ import axios from "axios";
 import ProductRow from "../components/ProductRow";
 import ProductCard from "../components/ProductCard";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import CategoryStrip from "../components/CategoryStrip";
+import { useCart } from "../context/CartContext"; // Hook injection
 
 // --- INLINE DESIGN-COMPLIANT PROMO IMAGE CAROUSEL ROW ---
 function PromoPillRow() {
@@ -16,7 +16,6 @@ function PromoPillRow() {
 
   return (
     <div className="w-full bg-transparent select-none relative z-20">
-      {/* Scroll track with custom padding values ensuring the final card element stays fully visible */}
       <div className="flex w-full overflow-x-auto gap-4 scrollbar-none scroll-smooth snap-x justify-start md:justify-end items-center pr-6 md:pr-12 pl-4">
         {promoPills.map((pill, idx) => (
           <div 
@@ -47,6 +46,7 @@ function Home() {
   const [brand, setBrand] = useState("");
   const [totalProducts, setTotalProducts] = useState(0);
   const navigate = useNavigate();
+  const { triggerToast } = useCart(); // Extract global toast launcher
   
   const search = searchParams.get("search") || "";
 
@@ -72,8 +72,15 @@ function Home() {
         setCurrentPage(response.data.currentPage);
         setTotalPages(response.data.totalPages);
         setTotalProducts(response.data.totalProducts);
+
+        // ADDED TOAST USER FEEDBACK: Show informative parameters status when search queries match items
+        if (search && response.data.totalProducts > 0) {
+          triggerToast(`Found ${response.data.totalProducts} results for "${search}"`);
+        }
       } catch (error) {
         console.log(error);
+        // INJECTED PRECISE NETWORK CAPTURE TOAST FEEDBACK
+        triggerToast("Failed to fetch fresh product parameters from database layer", "error");
       }
     };
     
@@ -93,8 +100,6 @@ function Home() {
     ),
   ];
 
-  const categories = ["Mobiles", "Televisions", "Laptops", "Audio Devices", "Smart Wearables"];
-
   return (
     <div className="bg-[#f3f4f6] min-h-screen font-sans antialiased overflow-x-hidden relative">
       <main className="w-full pb-10">
@@ -104,7 +109,7 @@ function Home() {
           <div className="w-full bg-[#0a3251] border-b border-gray-200 select-none overflow-hidden py-4 sm:py-6 md:py-8 lg:py-10">
             <div className="max-w-[1170px] mx-auto w-full px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-6">
               
-              {/* Left Side: Dynamic Native Typography Headers instead of stretched imagery background text */}
+              {/* Left Side: Dynamic Native Typography Headers */}
               <div className="flex flex-col text-left shrink-0 w-full md:w-auto">
                 <h1 className="text-[28px] sm:text-[36px] md:text-[40px] lg:text-[44px] font-black text-white leading-[1.1] tracking-tight drop-shadow-sm">
                   Grand Savings
@@ -170,6 +175,7 @@ function Home() {
                     setBrand("");
                     setSort("");
                     navigate("/");
+                    triggerToast("Filter clear tags applied");
                   }}
                   className="h-10 px-5 rounded-xl border border-red-100 bg-red-50/30 text-red-600 hover:bg-red-50 font-bold text-xs transition-colors cursor-pointer uppercase tracking-wider"
                 >
@@ -254,21 +260,51 @@ function Home() {
           </div>
         ) : (
           /* --- VIEWPORT 2: THE DEFAULT HOMEPAGE CATEGORY ROW STACK --- */
-          <div className="max-w-[1170px] mx-auto px-4 md:px-6 py-6 flex flex-col gap-6 font-sans antialiased text-left mt-2">
+          <div className="max-w-[1170px] mx-auto px-4 md:px-6 py-4 flex flex-col gap-5 font-sans antialiased text-left mt-2">
             
-            <div className="w-full">
-              <CategoryStrip title="Electronics" categories={categories} />
+            <div className="my-3">
+              <img
+                src="/offers/a.png"
+                alt="Offer"
+                className="w-full rounded-2xl cursor-pointer shadow-3xs"
+              />
             </div>
 
             <div className="w-full transition-opacity duration-200">
               <ProductRow title="Most Loved Groceries" products={groceries} />
+              <div className="my-4">
+                <img
+                  src="/offers/banner3.png"
+                  alt="Offer"
+                  className="w-full rounded-2xl cursor-pointer shadow-3xs"
+                />
+              </div>
             </div>
+
             <div className="w-full transition-opacity duration-200">
               <ProductRow title="Monsoon Needs for Home" products={homeAndLifestyle} />
             </div>
+
+            <div className="my-4">
+              <img
+                src="/offers/b.png"
+                alt="Offer"
+                className="w-full rounded-2xl cursor-pointer shadow-3xs"
+              />
+            </div>
+
             <div className="w-full transition-opacity duration-200">
               <ProductRow title="Top Electronics & Audio" products={electronics} />
             </div>
+
+            <div className="my-4">
+              <img
+                src="/offers/c.png"
+                alt="Offer"
+                className="w-full rounded-2xl cursor-pointer shadow-3xs"
+              />
+            </div>
+
             <div className="w-full transition-opacity duration-200">
               <ProductRow title="Beauty & Personal Care" products={beauty} />
             </div>

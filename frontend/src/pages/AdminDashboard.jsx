@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCart } from "../context/CartContext"; // Hook integration
 
 function AdminDashboard() {
   const [title, setTitle] = useState("");
@@ -18,6 +19,7 @@ function AdminDashboard() {
     searchParams.get("tab") || "products"
   );
   const navigate = useNavigate();
+  const { triggerToast } = useCart(); // Extract global toast launcher
 
   const [stats, setStats] = useState({
     revenue: 0,
@@ -43,6 +45,7 @@ function AdminDashboard() {
       setStats(response.data);
     } catch (error) {
       console.log(error);
+      triggerToast("Failed to refresh administrative database summary parameters", "error");
     }
   };
 
@@ -67,18 +70,25 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("token");
 
+      // CLEANUP REPEATING NAMES BUG: Clear brand prefixes if redundantly entered into title text strings
+      const dynamicBrandStr = brand.trim();
+      let cleanTitleStr = title.trim();
+      if (dynamicBrandStr && cleanTitleStr.startsWith(dynamicBrandStr)) {
+        cleanTitleStr = cleanTitleStr.replace(dynamicBrandStr, "").trim();
+      }
+
       if (editingProduct) {
         await axios.put(
           `http://localhost:5000/api/products/${editingProduct._id}`,
           {
-            title,
-            description,
+            title: cleanTitleStr,
+            description: description.trim(),
             category,
-            subcategory,
-            brand,
+            subcategory: subcategory.trim(),
+            brand: dynamicBrandStr,
             price,
             stock,
-            images: [imageUrl],
+            images: [imageUrl.trim()],
           },
           {
             headers: {
@@ -86,18 +96,19 @@ function AdminDashboard() {
             },
           }
         );
+        triggerToast("Catalog asset updated successfully!");
       } else {
         await axios.post(
           "http://localhost:5000/api/products",
           {
-            title,
-            description,
+            title: cleanTitleStr,
+            description: description.trim(),
             category,
-            subcategory,
-            brand,
+            subcategory: subcategory.trim(),
+            brand: dynamicBrandStr,
             price,
             stock,
-            images: [imageUrl],
+            images: [imageUrl.trim()],
           },
           {
             headers: {
@@ -105,12 +116,7 @@ function AdminDashboard() {
             },
           }
         );
-      }
-
-      if (editingProduct) {
-        alert("Product Updated Successfully!");
-      } else {
-        alert("Product Added Successfully!");
+        triggerToast("Product added to live storefront catalogue!");
       }
 
       setTitle("");
@@ -127,7 +133,7 @@ function AdminDashboard() {
       fetchDashboardStats();
     } catch (error) {
       console.log(error.response?.data);
-      alert(error.response?.data?.message || "Failed to Save Product");
+      triggerToast(error.response?.data?.message || "Failed to Save Product", "error");
     }
   };
 
@@ -142,6 +148,7 @@ function AdminDashboard() {
       setOrders(response.data);
     } catch (error) {
       console.log(error.response?.data);
+      triggerToast("Error accessing remote incoming order channels", "error");
     }
   };
 
@@ -163,8 +170,13 @@ function AdminDashboard() {
           order._id === id ? { ...order, status } : order
         )
       );
+      
+      // ADDITIONAL TOAST NOTIFICATION ON ORDER STATE MUTATION
+      triggerToast(`Order status updated to ${status}`);
+      fetchDashboardStats();
     } catch (error) {
       console.log(error.response?.data);
+      triggerToast("Failed to modify customer tracking status", "error");
     }
   };
 
@@ -179,13 +191,11 @@ function AdminDashboard() {
       setInventory(response.data);
     } catch (error) {
       console.log(error);
+      triggerToast("Inventory synchronization failed", "error");
     }
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("Delete this product?");
-    if (!confirmed) return;
-
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`http://localhost:5000/api/products/${id}`, {
@@ -193,11 +203,12 @@ function AdminDashboard() {
           Authorization: `Bearer ${token}`,
         },
       });
+      triggerToast("Product removed from system index");
       fetchInventory();
+      fetchDashboardStats();
     } catch (error) {
       console.log(error.response?.data);
-      console.log(error.response?.status);
-      console.log(error);
+      triggerToast("Failed to remove requested catalogue node", "error");
     }
   };
 
@@ -222,6 +233,7 @@ function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    triggerToast("Logged out of management console profile");
     navigate("/login", { replace: true });
   };
 
@@ -321,7 +333,7 @@ function AdminDashboard() {
                       placeholder="Enter catalog item title nomenclature..."
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
+                      className="w-full h-full bg-transparent text-sm font-medium outline-none text-black text-left"
                       required
                     />
                   </div>
@@ -336,7 +348,7 @@ function AdminDashboard() {
                     placeholder="Provide descriptive inventory documentation metrics for storefront layouts..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border border-gray-300 focus:border-[#0078ad] focus:border-2 rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none text-black"
+                    className="w-full border border-gray-300 focus:border-[#0078ad] focus:border-2 rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none text-black text-left"
                   />
                 </div>
 
@@ -375,7 +387,7 @@ function AdminDashboard() {
                         placeholder="e.g., Staples, Audio, Wearables"
                         value={subcategory}
                         onChange={(e) => setSubcategory(e.target.value)}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
+                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black text-left"
                       />
                     </div>
                   </div>
@@ -392,7 +404,7 @@ function AdminDashboard() {
                         placeholder="Manufacturer"
                         value={brand}
                         onChange={(e) => setBrand(e.target.value)}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
+                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black text-left"
                       />
                     </div>
                   </div>
@@ -407,7 +419,7 @@ function AdminDashboard() {
                         placeholder="0.00"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
+                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black text-left"
                         required
                       />
                     </div>
@@ -423,7 +435,7 @@ function AdminDashboard() {
                         placeholder="Units"
                         value={stock}
                         onChange={(e) => setStock(e.target.value)}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
+                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black text-left"
                         required
                       />
                     </div>
@@ -440,7 +452,7 @@ function AdminDashboard() {
                       placeholder="Paste cloud asset image storage URL reference path..."
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
-                      className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
+                      className="w-full h-full bg-transparent text-sm font-medium outline-none text-black text-left"
                       required
                     />
                   </div>
@@ -541,7 +553,7 @@ function AdminDashboard() {
                 <table className="w-full text-left border-separate border-spacing-y-2 min-w-[600px]">
                   <thead>
                     <tr className="text-gray-500 text-sm border-b">
-                      <th className="text-left py-3 font-semibold">Customer</th>
+                      <th className="text-left py-3 font-semibold px-4">Customer</th>
                       <th className="text-left font-semibold">Amount</th>
                       <th className="text-left font-semibold">Payment</th>
                       <th className="text-left font-semibold">Status</th>
@@ -552,7 +564,7 @@ function AdminDashboard() {
                   <tbody className="divide-y divide-gray-50">
                     {orders.map((order) => (
                       <tr key={order._id} className="bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                        <td className="py-4 px-4 rounded-l-xl">
+                        <td className="py-4 px-4 rounded-l-xl border-none">
                           <div className="text-left">
                             <p className="font-semibold text-gray-900">{order.userId?.name}</p>
                             <p className="text-sm text-gray-500 mt-0.5">{order.userId?.email}</p>
@@ -562,21 +574,19 @@ function AdminDashboard() {
                             </p>
                           </div>
                         </td>
-                        <td className="py-4 text-sm font-bold text-gray-900">
+                        <td className="py-4 text-sm font-bold text-gray-900 border-none">
                           ₹{order.totalAmount}
                         </td>
-                        <td className="py-4">
-  <span
-    className={`px-3 py-1 rounded-full text-xs font-bold ${
-      order.payment?.method === "Razorpay"
-        ? "bg-green-100 text-green-700"
-        : "bg-orange-100 text-orange-700"
-    }`}
-  >
-    {order.payment?.method || "COD"}
-  </span>
-</td>
-                        <td className="py-4">
+                        <td className="py-4 border-none">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            order.payment?.method === "Razorpay"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-orange-100 text-orange-700"
+                          }`}>
+                            {order.payment?.method || "COD"}
+                          </span>
+                        </td>
+                        <td className="py-4 border-none">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${
                             order.status === "Delivered" ? "bg-green-100 text-green-700" :
                             order.status === "Shipped" ? "bg-blue-100 text-blue-700" :
@@ -587,7 +597,7 @@ function AdminDashboard() {
                             {order.status}
                           </span>
                         </td>
-                        <td className="py-4 text-center">
+                        <td className="py-4 text-center border-none">
                           <div className="relative inline-block h-9 text-left">
                             <select
                               value={order.status}
@@ -607,7 +617,7 @@ function AdminDashboard() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 text-center rounded-r-xl">
+                        <td className="py-4 text-center rounded-r-xl border-none">
                           <button
                             type="button"
                             onClick={() => navigate(`/orders/${order._id}?from=admin`)}
@@ -626,7 +636,7 @@ function AdminDashboard() {
 
           {/* TAB 3: INVENTORY REGISTRY */}
           {activeTab === "inventory" && (
-            <div className="w-full bg-white rounded-[20px] border border-gray-100 p-8 shadow-xs overflow-hidden animate-fadeIn">
+            <div className="w-full bg-white rounded-[20px] border border-gray-100 p-8 shadow-xs overflow-hidden">
               <h2 className="text-2xl font-bold mb-6 text-left">Inventory</h2>
 
               <div className="w-full overflow-x-auto">
@@ -654,16 +664,16 @@ function AdminDashboard() {
                             />
                           </div>
                         </td>
-                        <td className="py-3 text-sm font-bold text-gray-900 max-w-[220px] truncate pr-4">
+                        <td className="py-3 text-sm font-bold text-gray-900 max-w-[220px] truncate pr-4 text-left">
                           {product.title}
                         </td>
-                        <td className="py-3 text-xs font-semibold text-gray-400 pr-4">
+                        <td className="py-3 text-xs font-semibold text-gray-400 pr-4 text-left">
                           {product.category}
                         </td>
-                        <td className="py-3 text-sm font-bold text-gray-900 pr-4">
+                        <td className="py-3 text-sm font-bold text-gray-900 pr-4 text-left">
                           ₹{product.price}
                         </td>
-                        <td className="py-3 pr-4">
+                        <td className="py-3 pr-4 text-left">
                           {product.stock < 10 ? (
                             <span className="bg-red-100 text-red-600 px-2.5 py-1 rounded-full text-xs font-bold inline-block">
                               Low Stock ({product.stock})

@@ -1,11 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { useCart } from "../context/CartContext"; // Imported your live context hook
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { triggerToast } = useCart(); // Extracted global toast launcher cleanly
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -18,19 +21,23 @@ function Login() {
         }
       );
 
-     localStorage.setItem("token", response.data.token);
-localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
-const user = response.data.user;
+      const user = response.data.user;
 
-if (user.role === "admin") {
-  navigate("/admin");
-} else {
-  navigate("/");
-}
+      // SUCCESS TOAST INSTANCE ADDITION
+      triggerToast("Logged in successfully! Welcome back.");
+
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.log(error.response?.data);
-      alert(error.response?.data?.message || "Login Failed");
+      // REPLACED ALERT WITH ERROR TOAST ENGINE
+      triggerToast(error.response?.data?.message || "Login Failed", "error");
     }
   };
 
@@ -139,13 +146,13 @@ if (user.role === "admin") {
         </p>
 
         <p className="text-center mt-4">
-  <Link
-    to="/otp-login"
-    className="text-[#0078ad] font-bold"
-  >
-    Login with OTP
-  </Link>
-</p>
+          <Link
+            to="/otp-login"
+            className="text-[#0078ad] font-bold"
+          >
+            Login with OTP
+          </Link>
+        </p>
 
       </div>
     </div>

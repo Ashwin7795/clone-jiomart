@@ -16,7 +16,7 @@ function Checkout() {
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("razorpay");
-  const { fetchCart } = useCart();
+  const { fetchCart, triggerToast } = useCart(); // Destructured your global toast engine launcher cleanly
   const navigate = useNavigate();
   const [processingPayment, setProcessingPayment] = useState(false);
 
@@ -43,6 +43,7 @@ function Checkout() {
       }
     } catch (error) {
       console.log(error);
+      triggerToast("Failed to sync your addresses from the database", "error");
     }
   };
 
@@ -53,37 +54,17 @@ function Checkout() {
       if (editingAddress) {
         await axios.put(
           `http://localhost:5000/api/address/${editingAddress._id}`,
-          {
-            fullName,
-            phone,
-            address,
-            city,
-            state,
-            pincode,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { fullName, phone, address, city, state, pincode },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+        triggerToast("Delivery address updated successfully");
       } else {
         await axios.post(
           "http://localhost:5000/api/address",
-          {
-            fullName,
-            phone,
-            address,
-            city,
-            state,
-            pincode,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { fullName, phone, address, city, state, pincode },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+        triggerToast("New address profile added to your account");
       }
 
       fetchAddresses();
@@ -98,23 +79,21 @@ function Checkout() {
       setPincode("");
     } catch (error) {
       console.log(error);
+      triggerToast("Could not process address schema formatting updates", "error");
     }
   };
 
   const handleDeleteAddress = async (id) => {
-    const confirmed = window.confirm("Delete this address?");
-    if (!confirmed) return;
-
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`http://localhost:5000/api/address/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
+      triggerToast("Address record removed successfully");
       fetchAddresses();
     } catch (error) {
       console.log(error);
+      triggerToast("Failed to drop address mapping target", "error");
     }
   };
 
@@ -142,21 +121,16 @@ function Checkout() {
       const token = localStorage.getItem("token");
       await axios.post(
         "http://localhost:5000/api/orders",
-        {
-          addressId: selectedAddress,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { addressId: selectedAddress },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       localStorage.setItem("cartUpdated", Date.now());
       await fetchCart();
+      triggerToast("Order processed under cash collection terms!");
       navigate("/order-success");
     } catch (error) {
       console.log(error.response?.data);
-      alert(error.response?.data?.message || "Order Failed");
+      triggerToast(error.response?.data?.message || "Order placement request rejected", "error");
     }
   };
 
@@ -168,11 +142,7 @@ function Checkout() {
       const response = await axios.post(
         "http://localhost:5000/api/payment/create-order",
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const options = {
@@ -193,16 +163,14 @@ function Checkout() {
                 razorpay_signature: payment.razorpay_signature,
                 addressId: selectedAddress,
               },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
+              { headers: { Authorization: `Bearer ${token}` } }
             );
+            triggerToast("Payment validation cleared!");
             await fetchCart();
             navigate("/order-success");
           } catch (error) {
             console.log(error);
+            triggerToast("Payment signature checksum validation mismatched", "error");
           } finally {
             setProcessingPayment(false);
           }
@@ -210,7 +178,8 @@ function Checkout() {
         modal: {
           ondismiss: function () {
             setProcessingPayment(false);
-            alert("Payment cancelled");
+            // REPLACED ALERT WITH TOAST
+            triggerToast("Transaction authorization aborted by customer", "error");
           },
         },
       };
@@ -220,13 +189,15 @@ function Checkout() {
       razorpay.on("payment.failed", function (response) {
         console.log(response.error);
         setProcessingPayment(false);
-        alert("Payment Failed");
+        // REPLACED ALERT WITH TOAST
+        triggerToast("Gateway gateway transaction channel dropped", "error");
       });
 
       razorpay.open();
     } catch (error) {
       console.log(error);
       setProcessingPayment(false);
+      triggerToast("Failed to initialize gateway system order parameters", "error");
     }
   };
 
@@ -378,59 +349,28 @@ function Checkout() {
                     placeholder="Enter absolute local landmark and block shipping details..."
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full border border-gray-300 focus:border-[#0078ad] focus:border-2 rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none text-black"
-                    required
+                    className="w-full border border-gray-300 focus:border-[#0078ad] focus:border-2 rounded-xl px-4 py-3 text-sm font-medium text-[#141414] outline-none placeholder-gray-300 text-left"
                   />
                 </div>
 
-                {/* City, State, and Pincode Triple Execution Grid Row */}
-                <div className="grid sm:grid-cols-3 gap-5 w-full">
-                  <div className="w-full flex flex-col items-start">
-                    <label className="text-xs font-bold text-gray-500 mb-1.5 tracking-wide uppercase">
-                      City
-                    </label>
-                    <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent transition-all">
-                      <input
-                        type="text"
-                        placeholder="City"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
-                        required
-                      />
+                {/* City, State, Pincode Group */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                  <div className="flex flex-col items-start">
+                    <label className="text-xs font-semibold text-gray-500 mb-1.5">City</label>
+                    <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent">
+                      <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full h-full bg-transparent text-sm font-medium outline-none" required />
                     </div>
                   </div>
-
-                  <div className="w-full flex flex-col items-start">
-                    <label className="text-xs font-bold text-gray-500 mb-1.5 tracking-wide uppercase">
-                      State
-                    </label>
-                    <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent transition-all">
-                      <input
-                        type="text"
-                        placeholder="State"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none text-black"
-                        required
-                      />
+                  <div className="flex flex-col items-start">
+                    <label className="text-xs font-semibold text-gray-500 mb-1.5">State</label>
+                    <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent">
+                      <input type="text" value={state} onChange={(e) => setState(e.target.value)} className="w-full h-full bg-transparent text-sm font-medium outline-none" required />
                     </div>
                   </div>
-
-                  <div className="w-full flex flex-col items-start">
-                    <label className="text-xs font-bold text-gray-500 mb-1.5 tracking-wide uppercase">
-                      Pincode
-                    </label>
-                    <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent transition-all">
-                      <input
-                        type="text"
-                        placeholder="6 Digits"
-                        maxLength={6}
-                        value={pincode}
-                        onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                        className="w-full h-full bg-transparent text-sm font-medium outline-none tracking-wider text-left text-black"
-                        required
-                      />
+                  <div className="flex flex-col items-start">
+                    <label className="text-xs font-semibold text-gray-500 mb-1.5">Pincode</label>
+                    <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent">
+                      <input type="text" maxLength={6} value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} className="w-full h-full bg-transparent text-sm font-medium outline-none tracking-wider" required />
                     </div>
                   </div>
                 </div>
@@ -475,8 +415,6 @@ function Checkout() {
 
               {/* High-Fidelity Radio Card Selector Track */}
               <div className="flex flex-col gap-3.5 w-full">
-                
-                {/* Option 1: Razorpay Electronic Gateway Trigger */}
                 <label 
                   className={`w-full border rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-all ${
                     paymentMethod === "razorpay"
@@ -500,7 +438,6 @@ function Checkout() {
                   </div>
                 </label>
 
-                {/* Option 2: Cash On Delivery Safe Fallback Terminal */}
                 <label 
                   className={`w-full border rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-all ${
                     paymentMethod === "cod"
@@ -523,7 +460,6 @@ function Checkout() {
                     </span>
                   </div>
                 </label>
-
               </div>
 
               {/* Action Submit Button */}

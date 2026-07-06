@@ -7,12 +7,17 @@ function ProductCard({ product }) {
   const navigate = useNavigate();
   const originalMrp = Math.round(product.price * 1.25);
   const [wishlisted, setWishlisted] = useState(false);
-  const { fetchCart, cartItems } = useCart();
+  const { fetchCart, cartItems, triggerToast } = useCart(); // Destructured triggerToast cleanly
 
   const token = localStorage.getItem("token");
   const cartItem = cartItems.find(
-    (item) => item.productId._id === product._id
+    (item) => item.productId?._id === product._id
   );
+
+  // BUG FIX: Strip out the duplicate brand prefix from the title string if it's already there
+  const cleanTitle = product.title && product.brand && product.title.startsWith(product.brand)
+    ? product.title.replace(product.brand, "").trim()
+    : product.title;
 
   useEffect(() => {
     if (token) {
@@ -32,7 +37,7 @@ function ProductCard({ product }) {
       );
 
       const exists = response.data.some(
-        (item) => item.productId._id === product._id
+        (item) => item.productId?._id === product._id
       );
 
       setWishlisted(exists);
@@ -42,7 +47,7 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="w-[150px] sm:w-[192px] bg-white rounded-2xl p-2.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer flex flex-col shrink-0 border border-gray-100/60 relative group select-none">
+    <div className="w-[150px] sm:w-[192px] bg-white rounded-2xl p-2.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer flex flex-col shrink-0 border border-gray-100/60 relative group select-none text-[#141414]">
       
       {/* Product Imagery & Overlay Utilities Frame */}
       <div className="relative w-full h-[150px] sm:h-[185px] bg-[#f5f5f5] rounded-xl overflow-hidden flex items-center justify-center">
@@ -54,7 +59,8 @@ function ProductCard({ product }) {
             e.stopPropagation();
             try {
               if (!token) {
-                alert("Please login first");
+                // REPLACED ALERT WITH TOAST
+                triggerToast("Please login first to manage your wishlist", "error");
                 return;
               }
 
@@ -65,15 +71,18 @@ function ProductCard({ product }) {
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
                 setWishlisted(true);
+                triggerToast("Added to your wishlist!");
               } else {
                 await axios.delete(
                   `http://localhost:5000/api/wishlist/${product._id}`,
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
                 setWishlisted(false);
+                triggerToast("Removed from wishlist");
               }
             } catch (error) {
               console.log(error.response?.data);
+              triggerToast("Could not complete wishlist action", "error");
             }
           }}
           className="absolute top-2 left-2 z-10 w-7 h-7 bg-white/80 backdrop-blur-xs rounded-full flex items-center justify-center border border-gray-100 hover:bg-white transition-colors cursor-pointer outline-none shadow-3xs"
@@ -100,6 +109,7 @@ function ProductCard({ product }) {
                     { headers: { Authorization: `Bearer ${token}` } }
                   );
                   await fetchCart();
+                  triggerToast("Cart updated");
                 }}
                 className="px-2 h-full text-[#0078ad] font-black text-xs hover:bg-blue-50/50 transition-colors cursor-pointer border-none outline-none"
               >
@@ -118,6 +128,7 @@ function ProductCard({ product }) {
                     { headers: { Authorization: `Bearer ${token}` } }
                   );
                   await fetchCart();
+                  triggerToast("Cart updated");
                 }}
                 className="px-2 h-full text-[#0078ad] font-black text-xs hover:bg-blue-50/50 transition-colors cursor-pointer border-none outline-none"
               >
@@ -130,15 +141,21 @@ function ProductCard({ product }) {
               onClick={async (e) => {
                 e.stopPropagation();
                 if (!token) {
-                  alert("Please login first");
+                  // REPLACED ALERT WITH TOAST
+                  triggerToast("Please login first to add items to your cart", "error");
                   return;
                 }
-                await axios.post(
-                  "http://localhost:5000/api/cart/add",
-                  { productId: product._id, quantity: 1 },
-                  { headers: { Authorization: `Bearer ${token}` } }
-                );
-                await fetchCart();
+                try {
+                  await axios.post(
+                    "http://localhost:5000/api/cart/add",
+                    { productId: product._id, quantity: 1 },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                  );
+                  await fetchCart();
+                  triggerToast("Added to cart!");
+                } catch (error) {
+                  triggerToast("Failed to add product to cart", "error");
+                }
               }}
               className="h-[26px] bg-white text-[#0078ad] border border-gray-200 hover:border-[#0078ad] text-[11px] font-bold px-2.5 rounded-md shadow-3xs transition-all cursor-pointer outline-none active:scale-[0.97]"
             >
@@ -171,12 +188,13 @@ function ProductCard({ product }) {
           1 Pack
         </span>
         
+        {/* FIXED BLUE TEXT & REPEATING BRAND: Strict typography rules keep color locked out of blue ranges */}
         <h3
           onClick={() => navigate(`/product/${product._id}`)}
-          className="text-[12px] sm:text-[13px] font-normal text-gray-700 leading-snug line-clamp-2 h-[36px] tracking-tight mb-1.5 group-hover:text-[#0078ad] transition-colors"
+          className="text-[12px] sm:text-[13px] font-normal text-gray-700 leading-snug line-clamp-2 h-[36px] tracking-tight mb-1.5 transition-colors group-hover:text-[#0078ad]"
         >
           {product.brand && <span className="font-bold text-gray-900 pr-0.5">{product.brand}</span>}
-          {product.title}
+          {cleanTitle}
         </h3>
 
         {/* Price Tracking Layout Matrix */}

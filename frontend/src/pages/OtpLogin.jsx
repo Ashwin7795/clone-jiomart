@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext"; // Context hook integration
 
 function OtpLogin() {
   const [phone, setPhone] = useState("");
@@ -8,6 +9,7 @@ function OtpLogin() {
   const [otpSent, setOtpSent] = useState(false);
 
   const navigate = useNavigate();
+  const { triggerToast } = useCart(); // Extract global toast launcher
 
   const handleSendOtp = async () => {
     try {
@@ -18,8 +20,12 @@ function OtpLogin() {
       console.log("OTP:", response.data.otp);
       setOtp(response.data.otp);
       setOtpSent(true);
+      
+      // ADDITIONAL TOAST SUCCESS INSTANCE
+      triggerToast("Verification code dispatched successfully!");
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to send OTP");
+      // REPLACED ALERT WITH TOAST
+      triggerToast(error.response?.data?.message || "Failed to send OTP", "error");
     }
   };
 
@@ -33,15 +39,19 @@ function OtpLogin() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
+      // ADDITIONAL TOAST SUCCESS INSTANCE
+      triggerToast("Verification successful! Logging in...");
+
       navigate("/");
       window.location.reload();
     } catch (error) {
-      alert(error.response?.data?.message || "OTP Verification Failed");
+      // REPLACED ALERT WITH TOAST
+      triggerToast(error.response?.data?.message || "OTP Verification Failed", "error");
     }
   };
 
   // Button handling variables matched to your exact criteria rules
-  const isSendEnabled = phone.trim().length >= 10;
+  const isSendEnabled = phone.trim().length === 10; // Exact length restriction for 10 digits
   const isVerifyEnabled = otp.trim().length >= 4;
 
   return (
@@ -90,7 +100,7 @@ function OtpLogin() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))} // Only allow digits
                 disabled={otpSent}
-                className={`w-full h-full bg-transparent text-sm font-medium text-[#141414] outline-none placeholder-gray-300 tracking-wide ${otpSent ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`w-full h-full bg-transparent text-sm font-medium text-[#141414] outline-none placeholder-gray-300 tracking-wide text-left ${otpSent ? "opacity-50 cursor-not-allowed" : ""}`}
                 required
               />
             </div>
