@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { useCart } from "../context/CartContext"; // Hook injection
 
 function Register() {
   const [name, setName] = useState("");
@@ -9,9 +10,16 @@ function Register() {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("user");
   const navigate = useNavigate();
+  const { triggerToast } = useCart(); // Extract global toast launcher
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ADDITIONAL VALUE CHECK: Basic phone number layout validation
+    if (phone && !/^\d{10}$/.test(phone.trim())) {
+      triggerToast("Please enter a valid 10-digit mobile number", "error");
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -26,18 +34,19 @@ function Register() {
       );
 
       console.log(response.data);
-      alert("Registration Successful!");
+      // REPLACED ALERT WITH SUCCESS TOAST
+      triggerToast("Registration Successful! Welcome aboard.");
       navigate("/login");
     } catch (error) {
       console.log(error.response?.data);
-      alert(
-        error.response?.data?.message ||
-        "Registration Failed"
+      // REPLACED ALERT WITH ERROR TOAST
+      triggerToast(
+        error.response?.data?.message || "Registration Failed",
+        "error"
       );
     }
   };
 
-  // Button verification criteria based on your login state rules
   const isButtonEnabled = name.trim() !== "" && email.trim() !== "" && password.length >= 6;
 
   return (
@@ -102,19 +111,23 @@ function Register() {
               />
             </div>
           </div>
-<div>
-  <label className="block mb-2 text-sm font-medium">
-    Phone Number
-  </label>
 
-  <input
-    type="text"
-    placeholder="Enter phone number"
-    value={phone}
-    onChange={(e) => setPhone(e.target.value)}
-    className="w-full border rounded-lg px-4 py-3 outline-none focus:border-blue-600"
-  />
-</div>
+          {/* Phone Number Row Box - UPGRADED TO MATCH HIGH-FIDELITY DESIGN SPEC */}
+          <div className="w-full flex flex-col items-start">
+            <label className="text-xs font-semibold text-gray-500 mb-1.5">
+              Phone Number
+            </label>
+            <div className="w-full h-12 border border-gray-300 focus-within:border-[#0078ad] focus-within:border-2 rounded-xl flex items-center px-4 bg-transparent transition-all">
+              <input
+                type="text"
+                placeholder="Enter phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full h-full bg-transparent text-sm font-medium text-[#141414] outline-none placeholder-gray-300 text-left"
+              />
+            </div>
+          </div>
+
           {/* Password Row Box */}
           <div className="w-full flex flex-col items-start">
             <label className="text-xs font-semibold text-gray-500 mb-1.5">

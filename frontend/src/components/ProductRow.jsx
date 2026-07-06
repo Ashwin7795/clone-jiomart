@@ -1,69 +1,63 @@
 import { useRef } from "react";
 import ProductCard from "./ProductCard";
-import { useNavigate } from "react-router-dom";
 
 function ProductRow({ title, products }) {
   const rowScrollRef = useRef(null);
-  const navigate = useNavigate();
 
   if (!products || products.length === 0) return null;
 
-  // Handles smooth stepping when clicking the structural floating arrows
   const handleScroll = (direction) => {
     if (rowScrollRef.current) {
-      const scrollAmount = direction === "left" ? -600 : 600;
+      const scrollAmount = direction === "left" ? -580 : 580;
       rowScrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
 
   const showNavigationArrows = products.length > 5;
 
-  // Helper function to safely extract category values from the row dataset
   const handleViewAllRedirect = () => {
     const firstProductCategory = products[0]?.category;
     if (firstProductCategory) {
-      navigate(`/?category=${encodeURIComponent(firstProductCategory)}`);
+      window.location.href = `/?category=${encodeURIComponent(firstProductCategory)}`;
     } else {
-      navigate("/");
+      window.location.href = "/";
     }
   };
 
   return (
-    <div className="w-full bg-white py-4 border-b border-gray-100 relative group">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-6 relative">
+    <div className="w-full bg-white py-4 relative group border-b border-gray-100">
+      <div className="max-w-[1170px] mx-auto px-4 md:px-6 relative">
         
-        {/* Section Title Header */}
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-[16px] md:text-[18px] font-black text-gray-900 tracking-tight">
+        {/* Section Header */}
+        <div className="flex justify-between items-baseline mb-3">
+          <h2 className="text-[16px] sm:text-[18px] font-extrabold text-gray-900 tracking-tight">
             {title}
           </h2>
           <button 
             type="button"
             onClick={handleViewAllRedirect}
-            className="text-[#0078ad] text-[12px] font-bold tracking-tight hover:underline cursor-pointer bg-transparent border-none outline-none"
+            className="text-[#0078ad] text-[12px] font-extrabold tracking-tight hover:underline cursor-pointer bg-transparent border-none outline-none"
           >
             View all
           </button>
         </div>
 
-        {/* Carousel Window Wrapper */}
+        {/* Slider Deck Window Track */}
         <div className="relative w-full flex items-center">
           
-          {/* Left Arrow Button */}
           {showNavigationArrows && (
             <button 
               type="button"
               onClick={() => handleScroll("left")} 
-              className="absolute left-0 z-20 w-8 h-8 bg-white/95 text-gray-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-gray-100 flex items-center justify-center font-bold text-[14px] hover:text-[#0078ad] transition-all -translate-y-6 focus:outline-none cursor-pointer"
+              className="absolute -left-3 z-30 w-8 h-8 bg-white text-gray-600 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center font-bold text-[12px] hover:text-[#0078ad] transition-all opacity-0 group-hover:opacity-100 focus:outline-none cursor-pointer -translate-y-4"
             >
               ❮
             </button>
           )}
 
-          {/* Horizontal Side-Scroll Track */}
           <div 
             ref={rowScrollRef} 
-            className="flex w-full overflow-x-auto gap-3 pb-2 scrollbar-none scroll-smooth snap-x snap-mandatory"
+            className="flex w-full overflow-x-auto gap-3.5 pb-3 pt-0.5 scrollbar-none scroll-smooth snap-x snap-mandatory"
           >
             {products.map((product) => (
               <div key={product._id} className="snap-start">
@@ -72,12 +66,11 @@ function ProductRow({ title, products }) {
             ))}
           </div>
 
-          {/* Right Arrow Button */}
           {showNavigationArrows && (
             <button 
               type="button"
               onClick={() => handleScroll("right")} 
-              className="absolute right-0 z-20 w-8 h-8 bg-white/95 text-gray-700 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-gray-100 flex items-center justify-center font-bold text-[14px] hover:text-[#0078ad] transition-all -translate-y-6 focus:outline-none cursor-pointer"
+              className="absolute -right-3 z-30 w-8 h-8 bg-white text-gray-600 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center font-bold text-[12px] hover:text-[#0078ad] transition-all opacity-0 group-hover:opacity-100 focus:outline-none cursor-pointer -translate-y-4"
             >
               ❯
             </button>

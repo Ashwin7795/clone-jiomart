@@ -18,6 +18,7 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 
 
@@ -39,6 +40,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 app.get("/", (req, res) => {
   res.send("JioMart Backend Running");

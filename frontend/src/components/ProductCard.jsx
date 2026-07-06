@@ -7,12 +7,17 @@ function ProductCard({ product }) {
   const navigate = useNavigate();
   const originalMrp = Math.round(product.price * 1.25);
   const [wishlisted, setWishlisted] = useState(false);
-  const { fetchCart, cartItems } = useCart();
+  const { fetchCart, cartItems, triggerToast } = useCart(); // Destructured triggerToast cleanly
 
   const token = localStorage.getItem("token");
   const cartItem = cartItems.find(
-    (item) => item.productId._id === product._id
+    (item) => item.productId?._id === product._id
   );
+
+  // BUG FIX: Strip out the duplicate brand prefix from the title string if it's already there
+  const cleanTitle = product.title && product.brand && product.title.startsWith(product.brand)
+    ? product.title.replace(product.brand, "").trim()
+    : product.title;
 
   useEffect(() => {
     if (token) {
@@ -32,7 +37,7 @@ function ProductCard({ product }) {
       );
 
       const exists = response.data.some(
-        (item) => item.productId._id === product._id
+        (item) => item.productId?._id === product._id
       );
 
       setWishlisted(exists);
@@ -42,185 +47,162 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="min-w-[160px] md:min-w-[210px] w-[160px] md:w-[210px] bg-white rounded-xl p-3 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-shadow duration-200 cursor-pointer flex flex-col shrink-0 border border-transparent hover:border-gray-100 group">
+    <div className="w-[150px] sm:w-[192px] bg-white rounded-2xl p-2.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all duration-200 cursor-pointer flex flex-col shrink-0 border border-gray-100/60 relative group select-none text-[#141414]">
       
-      {/* Product Image Area - Light grey background like original */}
-      <div className="relative w-full h-44 bg-[#f9f9f9] rounded-lg cursor-pointer overflow-hidden">
+      {/* Product Imagery & Overlay Utilities Frame */}
+      <div className="relative w-full h-[150px] sm:h-[185px] bg-[#f5f5f5] rounded-xl overflow-hidden flex items-center justify-center">
         
-        {/* Heart Icon - Top Left */}
+        {/* Heart Icon Toggle Utility - Top Left */}
         <button
           type="button"
           onClick={async (e) => {
             e.stopPropagation();
-
             try {
               if (!token) {
-                alert("Please login first");
+                // REPLACED ALERT WITH TOAST
+                triggerToast("Please login first to manage your wishlist", "error");
                 return;
               }
 
               if (!wishlisted) {
                 await axios.post(
                   "http://localhost:5000/api/wishlist",
-                  {
-                    productId: product._id,
-                  },
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
+                  { productId: product._id },
+                  { headers: { Authorization: `Bearer ${token}` } }
                 );
-
                 setWishlisted(true);
+                triggerToast("Added to your wishlist!");
               } else {
                 await axios.delete(
                   `http://localhost:5000/api/wishlist/${product._id}`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
+                  { headers: { Authorization: `Bearer ${token}` } }
                 );
-
                 setWishlisted(false);
+                triggerToast("Removed from wishlist");
               }
             } catch (error) {
               console.log(error.response?.data);
+              triggerToast("Could not complete wishlist action", "error");
             }
           }}
-          className="absolute top-2 left-2 z-10"
+          className="absolute top-2 left-2 z-10 w-7 h-7 bg-white/80 backdrop-blur-xs rounded-full flex items-center justify-center border border-gray-100 hover:bg-white transition-colors cursor-pointer outline-none shadow-3xs"
         >
-          <svg className="w-5 h-5" fill={wishlisted ? "red" : "#d1d5db"} viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 transition-transform active:scale-90" fill={wishlisted ? "#ef4444" : "none"} stroke={wishlisted ? "#ef4444" : "#71717a"} strokeWidth="2.5" viewBox="0 0 24 24">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
         </button>
 
-        {/* The JioMart "Add" Button - Top Right */}
-        {cartItem ? (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="absolute top-2 right-2 flex items-center h-7 bg-white border border-[#0078ad] rounded-lg shadow-2xs overflow-hidden z-10"
-          >
+        {/* Action Toggle Add Triggers - Top Right */}
+        <div className="absolute top-2 right-2 z-10">
+          {cartItem ? (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center h-[26px] bg-white border border-[#0078ad] rounded-md shadow-3xs overflow-hidden"
+            >
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await axios.put(
+                    "http://localhost:5000/api/cart/update",
+                    { productId: product._id, quantity: cartItem.quantity - 1 },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                  );
+                  await fetchCart();
+                  triggerToast("Cart updated");
+                }}
+                className="px-2 h-full text-[#0078ad] font-black text-xs hover:bg-blue-50/50 transition-colors cursor-pointer border-none outline-none"
+              >
+                -
+              </button>
+              <span className="px-1 text-[11px] font-black text-gray-900 select-none min-w-[12px] text-center">
+                {cartItem.quantity}
+              </span>
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await axios.put(
+                    "http://localhost:5000/api/cart/update",
+                    { productId: product._id, quantity: cartItem.quantity + 1 },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                  );
+                  await fetchCart();
+                  triggerToast("Cart updated");
+                }}
+                className="px-2 h-full text-[#0078ad] font-black text-xs hover:bg-blue-50/50 transition-colors cursor-pointer border-none outline-none"
+              >
+                +
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
               onClick={async (e) => {
                 e.stopPropagation();
-                await axios.put(
-                  "http://localhost:5000/api/cart/update",
-                  {
-                    productId: product._id,
-                    quantity: cartItem.quantity - 1,
-                  },
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
-
-                await fetchCart();
-              }}
-              className="px-2.5 h-full text-[#0078ad] font-bold hover:bg-[#e5f1f7]/30 transition-colors cursor-pointer"
-            >
-              -
-            </button>
-
-            <span className="px-1 text-xs font-bold text-gray-900 select-none">
-              {cartItem.quantity}
-            </span>
-
-            <button
-              type="button"
-              onClick={async (e) => {
-                e.stopPropagation();
-                await axios.put(
-                  "http://localhost:5000/api/cart/update",
-                  {
-                    productId: product._id,
-                    quantity: cartItem.quantity + 1,
-                  },
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
-
-                await fetchCart();
-              }}
-              className="px-2.5 h-full text-[#0078ad] font-bold hover:bg-[#e5f1f7]/30 transition-colors cursor-pointer"
-            >
-               +
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={async (e) => {
-              e.stopPropagation();
-
-              if (!token) {
-                alert("Please login first");
-                return;
-              }
-
-              await axios.post(
-                "http://localhost:5000/api/cart/add",
-                {
-                  productId: product._id,
-                  quantity: 1,
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
+                if (!token) {
+                  // REPLACED ALERT WITH TOAST
+                  triggerToast("Please login first to add items to your cart", "error");
+                  return;
                 }
-              );
+                try {
+                  await axios.post(
+                    "http://localhost:5000/api/cart/add",
+                    { productId: product._id, quantity: 1 },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                  );
+                  await fetchCart();
+                  triggerToast("Added to cart!");
+                } catch (error) {
+                  triggerToast("Failed to add product to cart", "error");
+                }
+              }}
+              className="h-[26px] bg-white text-[#0078ad] border border-gray-200 hover:border-[#0078ad] text-[11px] font-bold px-2.5 rounded-md shadow-3xs transition-all cursor-pointer outline-none active:scale-[0.97]"
+            >
+              Add
+            </button>
+          )}
+        </div>
 
-              await fetchCart();
-            }}
-            className="absolute top-2 right-2 h-7 bg-white text-[#0078ad] border border-[#0078ad] text-[11px] font-bold px-3 rounded-lg shadow-2xs hover:bg-[#e5f1f7]/20 transition-colors z-10 cursor-pointer"
-          >
-            Add
-          </button>
-        )}
+        {/* Native E-Commerce Veg Green Square Dot Emblem Tag - Bottom Right */}
+        <div className="absolute bottom-2 right-2 z-10 w-3.5 h-3.5 bg-white border border-gray-200 rounded-xs flex items-center justify-center pointer-events-none p-0.5 shadow-3xs">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+        </div>
 
-        {/* Product Imagery Frame Wrapper */}
+        {/* Image Mount Canvas Container */}
         <div 
           onClick={() => navigate(`/product/${product._id}`)}
-          className="flex items-center justify-center h-full w-full p-4"
+          className="w-full h-full p-3.5 flex items-center justify-center mix-blend-multiply transition-transform duration-300 ease-out group-hover:scale-[1.015]"
         >
           <img
             src={product.images?.[0]}
             alt={product.title}
-            className="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-102 transition-transform duration-300 ease-out"
+            className="max-w-full max-h-full object-contain pointer-events-none"
           />
         </div>
       </div>
 
       {/* Details Meta Presentation Container Block */}
-      <div className="flex flex-col flex-grow mt-2 text-left font-sans antialiased">
-        {/* Centered Pack Info */}
-        <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider mb-1">
+      <div className="flex flex-col flex-grow mt-2 text-left font-sans antialiased px-0.5">
+        <span className="text-[11px] text-gray-400 font-medium tracking-normal mb-0.5">
           1 Pack
-        </div>
+        </span>
         
-        {/* Title */}
+        {/* FIXED BLUE TEXT & REPEATING BRAND: Strict typography rules keep color locked out of blue ranges */}
         <h3
           onClick={() => navigate(`/product/${product._id}`)}
-          className="cursor-pointer text-[13px] font-medium text-gray-800 leading-snug line-clamp-2 h-[36px] mb-2 hover:text-[#0078ad] transition-colors"
+          className="text-[12px] sm:text-[13px] font-normal text-gray-700 leading-snug line-clamp-2 h-[36px] tracking-tight mb-1.5 transition-colors group-hover:text-[#0078ad]"
         >
-          {product.brand ? <span className="font-bold text-gray-900">{product.brand} </span> : ""}
-          {product.title}
+          {product.brand && <span className="font-bold text-gray-900 pr-0.5">{product.brand}</span>}
+          {cleanTitle}
         </h3>
 
-        {/* Pricing Rows Grid */}
-        <div className="mt-auto flex items-baseline gap-1.5 select-none">
-          <span className="text-[15px] font-bold text-gray-900">
+        {/* Price Tracking Layout Matrix */}
+        <div className="mt-auto flex items-baseline gap-1.5">
+          <span className="text-[14px] sm:text-[15px] font-extrabold text-gray-900 tracking-tight">
             ₹{product.price}
           </span>
-          <span className="text-[11px] text-gray-400 font-medium line-through decoration-gray-300">
+          <span className="text-[10px] sm:text-[11px] text-gray-400 font-normal line-through tracking-tight decoration-gray-300/80">
             ₹{originalMrp}
           </span>
         </div>
