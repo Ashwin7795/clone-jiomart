@@ -19,7 +19,7 @@ const addressRoutes = require("./routes/addressRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
-const seedData = require("./seed");
+
 
 
 
@@ -48,18 +48,6 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.get("/seed", async (req, res) => {
-  try {
-    await seedData();
-
-    res.send("Database seeded successfully");
-
-  } catch (error) {
-
-    res.status(500).send(error.message);
-
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
