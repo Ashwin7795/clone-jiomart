@@ -17,7 +17,7 @@ function Cart() {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/cart", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCart(response.data);
@@ -31,7 +31,7 @@ function Cart() {
     if (newQty < 1) return;
     try {
       await axios.put(
-        "http://localhost:5000/api/cart/update",
+       `${import.meta.env.VITE_API_URL}/api/cart/update`,
         { productId, quantity: newQty },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -44,7 +44,7 @@ function Cart() {
   const handleRemove = async (productId) => {
   try {
     await axios.delete(
-      "http://localhost:5000/api/cart/remove",
+      `${import.meta.env.VITE_API_URL}/api/cart/remove`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

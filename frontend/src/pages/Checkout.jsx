@@ -27,7 +27,7 @@ function Checkout() {
   const fetchAddresses = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/address", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/address`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -53,14 +53,14 @@ function Checkout() {
 
       if (editingAddress) {
         await axios.put(
-          `http://localhost:5000/api/address/${editingAddress._id}`,
+          `${import.meta.env.VITE_API_URL}/api/address/${editingAddress._id}`,
           { fullName, phone, address, city, state, pincode },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         triggerToast("Delivery address updated successfully");
       } else {
         await axios.post(
-          "http://localhost:5000/api/address",
+          `${import.meta.env.VITE_API_URL}/api/address`,
           { fullName, phone, address, city, state, pincode },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -86,7 +86,7 @@ function Checkout() {
   const handleDeleteAddress = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/address/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/address/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       triggerToast("Address record removed successfully");
@@ -120,7 +120,7 @@ function Checkout() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/orders",
+        `${import.meta.env.VITE_API_URL}/api/orders`,
         { addressId: selectedAddress },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -140,7 +140,7 @@ function Checkout() {
       const token = localStorage.getItem("token");
       
       const response = await axios.post(
-        "http://localhost:5000/api/payment/create-order",
+        `${import.meta.env.VITE_API_URL}/api/payment/create-order`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -156,7 +156,7 @@ function Checkout() {
           try {
             const token = localStorage.getItem("token");
             await axios.post(
-              "http://localhost:5000/api/payment/verify",
+              `${import.meta.env.VITE_API_URL}/api/payment/verify`,
               {
                 razorpay_order_id: payment.razorpay_order_id,
                 razorpay_payment_id: payment.razorpay_payment_id,
