@@ -28,7 +28,7 @@ function ProductCard({ product }) {
   const checkWishlist = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/wishlist",
+        `${import.meta.env.VITE_API_URL}/api/wishlist`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,7 +66,7 @@ function ProductCard({ product }) {
 
               if (!wishlisted) {
                 await axios.post(
-                  "http://localhost:5000/api/wishlist",
+                 `${import.meta.env.VITE_API_URL}/api/wishlist`,
                   { productId: product._id },
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -74,7 +74,7 @@ function ProductCard({ product }) {
                 triggerToast("Added to your wishlist!");
               } else {
                 await axios.delete(
-                  `http://localhost:5000/api/wishlist/${product._id}`,
+                  `${import.meta.env.VITE_API_URL}/api/wishlist/${product._id}`,
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
                 setWishlisted(false);
@@ -104,7 +104,7 @@ function ProductCard({ product }) {
                 onClick={async (e) => {
                   e.stopPropagation();
                   await axios.put(
-                    "http://localhost:5000/api/cart/update",
+                    `${import.meta.env.VITE_API_URL}/api/cart/update`,
                     { productId: product._id, quantity: cartItem.quantity - 1 },
                     { headers: { Authorization: `Bearer ${token}` } }
                   );
@@ -123,7 +123,7 @@ function ProductCard({ product }) {
                 onClick={async (e) => {
                   e.stopPropagation();
                   await axios.put(
-                    "http://localhost:5000/api/cart/update",
+                   `${import.meta.env.VITE_API_URL}/api/cart/update`,
                     { productId: product._id, quantity: cartItem.quantity + 1 },
                     { headers: { Authorization: `Bearer ${token}` } }
                   );
@@ -147,7 +147,7 @@ function ProductCard({ product }) {
                 }
                 try {
                   await axios.post(
-                    "http://localhost:5000/api/cart/add",
+                   `${import.meta.env.VITE_API_URL}/api/cart/add`,
                     { productId: product._id, quantity: 1 },
                     { headers: { Authorization: `Bearer ${token}` } }
                   );

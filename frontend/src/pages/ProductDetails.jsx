@@ -34,8 +34,8 @@ function ProductDetails() {
       try {
         setLoading(true);
 
-        const res = await axios.get(`http://localhost:5000/api/products/${id}`);
-        const reviewRes = await axios.get(`http://localhost:5000/api/reviews/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
+        const reviewRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/${id}`);
 
         setReviews(reviewRes.data);
         setProduct(res.data);
@@ -43,12 +43,12 @@ function ProductDetails() {
         const token = localStorage.getItem("token");
 
         if (token) {
-          const cartRes = await axios.get("http://localhost:5000/api/cart", {
+          const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
           const permission = await axios.get(
-            `http://localhost:5000/api/reviews/can-review/${id}`,
+           `${import.meta.env.VITE_API_URL}/api/reviews/can-review/${id}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
@@ -65,7 +65,7 @@ function ProductDetails() {
           }
         }
 
-        const relatedRes = await axios.get(`http://localhost:5000/api/products/${id}/related`);
+        const relatedRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}/related`);
         setRelatedProducts(relatedRes.data);
         setLoading(false);
       } catch (err) {
@@ -82,7 +82,7 @@ function ProductDetails() {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://localhost:5000/api/reviews",
+       `${import.meta.env.VITE_API_URL}/api/reviews`,
         {
           productId: id,
           rating,
@@ -94,11 +94,11 @@ function ProductDetails() {
       // REPLACED ALERT WITH TOAST
       triggerToast("Review added successfully!");
 
-      const reviewRes = await axios.get(`http://localhost:5000/api/reviews/${id}`);
+      const reviewRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/${id}`);
       setReviews(reviewRes.data);
 
       const productRes = await axios.get(
-  `http://localhost:5000/api/products/${id}`
+  `${import.meta.env.VITE_API_URL}/api/products/${id}`
 );
 
 setProduct(productRes.data);
@@ -117,7 +117,7 @@ setProduct(productRes.data);
     if (!token) return navigate("/login");
     try {
       await axios.post(
-        "http://localhost:5000/api/cart/add",
+        `${import.meta.env.VITE_API_URL}/api/cart/add`,
         { productId: product._id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -136,7 +136,7 @@ setProduct(productRes.data);
 
     if (newQty < 1) {
       try {
-        await axios.delete("http://localhost:5000/api/cart/remove", {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/cart/remove`, {
           headers: { Authorization: `Bearer ${token}` },
           data: { productId: product._id },
         });
@@ -157,7 +157,7 @@ setProduct(productRes.data);
 
     try {
       await axios.put(
-        "http://localhost:5000/api/cart/update",
+        `${import.meta.env.VITE_API_URL}/api/cart/update`,
         { productId: product._id, quantity: newQty },
         { headers: { Authorization: `Bearer ${token}` } }
       );

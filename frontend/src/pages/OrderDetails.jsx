@@ -18,7 +18,7 @@ function OrderDetails() {
 
   const fetchOrder = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/orders/${id}`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,7 +55,7 @@ function OrderDetails() {
   const updateStatus = async (status) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/orders/${order._id}/status`,
+        `${import.meta.env.VITE_API_URL}/api/orders/${order._id}/status`,
         { status },
         {
           headers: {

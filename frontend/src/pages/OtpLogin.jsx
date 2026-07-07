@@ -14,7 +14,7 @@ function OtpLogin() {
   const handleSendOtp = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/send-otp",
+        `${import.meta.env.VITE_API_URL}/api/auth/send-otp`,
         { phone }
       );
       console.log("OTP:", response.data.otp);
@@ -32,7 +32,7 @@ function OtpLogin() {
   const handleVerifyOtp = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
+        `${import.meta.env.VITE_API_URL}/api/auth/verify-otp`,
         { phone, otp }
       );
 

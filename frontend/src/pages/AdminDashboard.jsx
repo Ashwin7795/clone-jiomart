@@ -37,7 +37,7 @@ function AdminDashboard() {
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/admin/dashboard", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/dashboard`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -79,7 +79,7 @@ function AdminDashboard() {
 
       if (editingProduct) {
         await axios.put(
-          `http://localhost:5000/api/products/${editingProduct._id}`,
+          `${import.meta.env.VITE_API_URL}/api/products/${editingProduct._id}`,
           {
             title: cleanTitleStr,
             description: description.trim(),
@@ -99,7 +99,7 @@ function AdminDashboard() {
         triggerToast("Catalog asset updated successfully!");
       } else {
         await axios.post(
-          "http://localhost:5000/api/products",
+         `${import.meta.env.VITE_API_URL}/api/products`,
           {
             title: cleanTitleStr,
             description: description.trim(),
@@ -140,7 +140,7 @@ function AdminDashboard() {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/orders/admin", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/admin`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -156,7 +156,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/orders/${id}/status`,
+        `${import.meta.env.VITE_API_URL}/api/orders/${id}/status`,
         { status },
         {
           headers: {
@@ -183,7 +183,7 @@ function AdminDashboard() {
   const fetchInventory = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/admin/inventory", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/inventory`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -198,7 +198,7 @@ function AdminDashboard() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

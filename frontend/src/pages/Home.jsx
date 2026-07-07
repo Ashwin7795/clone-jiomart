@@ -59,7 +59,7 @@ function Home() {
       try {
         window.scrollTo({ top: 0 });
 
-        const response = await axios.get("http://localhost:5000/api/products", {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`, {
           params: {
             search,
             category,
