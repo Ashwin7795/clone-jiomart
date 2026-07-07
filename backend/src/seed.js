@@ -182,11 +182,11 @@ const seedData = async () => {
     await Product.insertMany(productsToInsert);
 
     console.log(`SUCCESS: ${productsToInsert.length} Perfect Products Inserted! (Including authentic multi-image items)`);
-    process.exit();
+    return;
 
   } catch (error) {
     console.error("Seeding Error:", error);
-    process.exit(1);
+  throw error;
   }
 };
 
